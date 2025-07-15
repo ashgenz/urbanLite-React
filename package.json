@@ -39,5 +39,13 @@
     "react-leaflet": "^5.0.0",
     "react-map-gl": "^8.0.4",
     "react-router-dom": "^7.6.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashgenz/urbanLite-React.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ashgenz/urbanLite-React/issues"
+  },
+  "homepage": "https://github.com/ashgenz/urbanLite-React#readme"
 }
