@@ -212,7 +212,8 @@ openCloseLogin=function(){
       <div className="absolute top-[22vw] left-[26vw] w-[80vw] gap-2">
         <input className="bg-[#d8d8d8] rounded-full h-[3.5vw]  px-10 text-[1.3vw] w-[41vw] absolute top-[0.1vw]" placeholder="Search" />
         <input className="bg-white pl-[1.2vw] rounded-[15px] h-[2.6vw] w-[8vw] text-[1.1vw] absolute right-[39.8vw] top-[0.5vw]" placeholder="Jaipur " />
-        <span className="material-symbols-outlined absolute  rounded-[5px] ml-[38vw] top-[1vw] text-[3vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]">
+        <span className="material-symbols-outlined absolute  rounded-[5px] ml-[38vw] top-[1vw] text-[3vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]"
+         style={{ fontSize: '1.7vw'}}>
         distance 
         </span>
       </div>
