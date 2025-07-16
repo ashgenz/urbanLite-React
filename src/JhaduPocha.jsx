@@ -1,4 +1,4 @@
-import TimeSlotDropdown from "./Timeslotdropdown"
+import TimeSlotDropdown from "./TimeSlotDropdown"
 
 export default function JhaduPocha({heading}){
     return <>
