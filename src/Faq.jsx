@@ -30,7 +30,7 @@ export default function FAQSection() {
   ]
 
   return (
-    <section className="w-full left-[50vw] py-16  bg-[#000]">
+    <section className="w-full left-[50vw] pt-16  bg-[#000]">
       <div className="max-w-4xl px-4 md:px-6 mx-auto">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">

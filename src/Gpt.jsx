@@ -6,10 +6,17 @@ import SuggestionButton from './SuggestionButton';
 import ServiceCard from "./ServiceCard"
 import ArrivalCard from './ArrivalCard';
 import Whyus from './Whyus';
-import FAQSection from './Faq';
+// import FAQSection from './Faq';
 import {BrowserRouter as Router,Route,Routes,Link} from "react-router-dom";
 import BookingsPage from './BookingPage';
 import JhaduPocha from './JhaduPocha'
+import Login from './Login';
+import Refunds from './Refunds';
+import Tnc from './Tnc';
+import ContactUs from './ContactUs';
+import Nav from './Nav';
+import Footer from './Footer';
+import ScrollToTop from './ScrollToTop';
 // import {
 //   GoogleMap,
 //   Marker,
@@ -98,15 +105,11 @@ import JhaduPocha from './JhaduPocha'
 //   );
 // };
 
-let openCloseLogin;
+
 
 const UrbanLite2 = () => { 
 
-//close Login
-const [loginOpenClose,setClose]=useState(false)
-openCloseLogin=function(){
-  setClose(!loginOpenClose)
-}
+
 
 
   //   const getLocation2 = () => {
@@ -153,42 +156,36 @@ openCloseLogin=function(){
     ));
 
   return (
-    <div style={{fontFamily: 'sans-serif'}}>
-    <div className="relative font-sans min-h-screen overflow-x-hidden bg-white">
-      {/* Header */}
-      <div className="w-full h-[3.5vw] bg-black  top-0 left-0 z-10">
-        <p className="absolute text-white font-bold text-[1.8vw] left-[20px] top-[0.5vw]">UrbanLite</p>
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[30vw]' style={{fontFamily: 'sans-serif'}}>Services</p>
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[46vw]' style={{fontFamily: 'sans-serif'}}>About us</p>
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[38vw]' style={{fontFamily: 'sans-serif'}}>Why us</p>
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[53.1vw]' style={{fontFamily: 'sans-serif'}}>Contact us</p>
-        <a href="https://4x07dkrh-8600.inc1.devtunnels.ms/" className="absolute text-[#8956ff] text-[1.2vw] top-[0.8vw] left-[76.2vw]">user</a>
-        <a href="https://4x07dkrh-9600.inc1.devtunnels.ms/" className="absolute text-[#8956ff] text-[1.2vw] top-[0.8vw] left-[80vw]">w-user</a>
-        <span className="material-symbols-outlined absolute text-white/50"
-            style={{ fontSize: '2.3vw', top: '0.6vw', left: '97%', position: 'absolute' }}>
-            account_circle
-        </span>
-        <button onClick={openCloseLogin} className='absolute top-[0.6vw] right-[8vw] bg-[#8956FF]  rounded-lg px-[1vw] py-[0.4vw] text-[1vw]   text-white hover:border-[1px] hover:bg-[#9060ff] hover:cursor-pointer' >Login</button>
-      </div>
+<div className="relative font-sans min-h-screen overflow-x-hidden bg-white" style={{fontFamily: 'sans-serif'}}>
 
-      {/* login section */}
-      {loginOpenClose &&    <div className='border-[1px] fixed h-[550px] w-[29.5vw] top-[5vw] bg-[#f7f7f7] left-[35vw] z-1 rounded-lg'>
-      <Firebase />
-      </div>}
    
 
 
-      <p className='absolute top-[39vw] left-[47.1vw] text-[1vw] ' style={{fontFamily: 'sans-serif'}}>Book Now</p>
-
+    <div className=''>
       {/* Images */}
-      <img src="chef.png" alt="Chef" className="absolute w-[13vw] left-[3vw] top-[8vw]" />
-      <img src="cafeworker.png" alt="Cafe Worker" className="absolute w-[15vw] left-[10vw] top-[18vw]" />
-      <img src="cap-guy.png" alt="Cap Guy" className="absolute w-[15vw] left-[80vw] top-[13vw]" />
-      <img src="3-guy.png" alt="Three Guys" className="absolute w-[13vw] left-[69vw] top-[25vw]" />
-      <img src="domestic-clean.png" alt="Domestic Clean" className="absolute w-[13vw]  left-[63vw] top-[6vw]" />
-
+      <img src="chef.png" alt="Chef" className="absolute w-[13vw] left-[3vw] top-[6vw]" />
+      <img src="cafeworker.png" alt="Cafe Worker" className="absolute w-[15vw] left-[10vw] top-[19vw]" />
+      <img src="cap-guy.png" alt="Cap Guy" className="absolute w-[15vw] left-[80vw] top-[11vw]" />
+      <img src="3-guy.png" alt="Three Guys" className="absolute  w-[13vw] left-[69vw] top-[23vw]" />
+      <img src="domestic-clean.png" alt="Domestic Clean" className="absolute w-[13vw]  left-[63vw] top-[4vw]" />
+      {/* Headings */}
+      <div className="absolute left-[27.7vw] top-[5vw] text-black text-[2.7vw] font-bold md:block" style={{fontFamily: 'Arial'}}>
+        Skilled Worker at <br /> Your Doorstep
+      </div>
+      <div className="absolute left-[28vw] top-[13vw] text-black text-[1.28vw] md:block" style={{fontFamily: 'sans-serif'}}>
+        India's Best <br /> Blue collar Jobs <br /> Marketplace
+      </div>
+      {/* Search */}
+      <div className="absolute top-[20vw] left-[26vw] w-[80vw] gap-2">
+        <input className="bg-[#d8d8d8] rounded-full h-[3.5vw]  px-10 text-[1.3vw] w-[41vw] absolute top-[0.1vw]" placeholder="Search" />
+        <input className="bg-white pl-[1.2vw] rounded-[15px] h-[2.6vw] w-[8vw] text-[1.1vw] absolute right-[39.8vw] top-[0.5vw]" placeholder="Jaipur " />
+        <span className="material-symbols-outlined absolute  rounded-[5px] ml-[38vw] top-[1vw] text-[3vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]"
+         style={{ fontSize: '1.7vw'}}>
+        distance 
+        </span>
+      </div>
       {/* suggestions */}
-        <div className='w-[35vw] h-[10vw]  absolute top-[25.5vw] left-[31vw] '>
+        <div className='w-[35vw] h-[10vw]  absolute top-[23.5vw] left-[31vw] '>
           <SuggestionButton Name="chef"/>
           <SuggestionButton Name="waiter"/>
           <SuggestionButton Name="Maid"/>
@@ -199,29 +196,22 @@ openCloseLogin=function(){
           <SuggestionButton Name="Maid"/>
           <SuggestionButton Name="Repair"/>
         </div>
-
-      {/* Headings */}
-      <div className="absolute left-[27.7vw] top-[7vw] text-black text-[2.7vw] font-bold md:block" style={{fontFamily: 'Arial'}}>
-        Skilled Worker at <br /> Your Doorstep
+      <p className='relative mt-[39vw] left-[47.1vw] text-[1vw] ' style={{fontFamily: 'sans-serif'}}>Book Now</p>
+      {/* Arrow-bounce */}
+      <div className="absolute top-[38vw] left-[48vw]  mt-10">
+      <div className="animate-bounce text-gray-600 dark:text-black">
+        <ChevronDown size={40} />
       </div>
-      <div className="absolute left-[28vw] top-[15vw] text-black text-[1.28vw] md:block" style={{fontFamily: 'sans-serif'}}>
-        India's Best <br /> Blue collar Jobs <br /> Marketplace
       </div>
-
-      {/* Search */}
-      <div className="absolute top-[22vw] left-[26vw] w-[80vw] gap-2">
-        <input className="bg-[#d8d8d8] rounded-full h-[3.5vw]  px-10 text-[1.3vw] w-[41vw] absolute top-[0.1vw]" placeholder="Search" />
-        <input className="bg-white pl-[1.2vw] rounded-[15px] h-[2.6vw] w-[8vw] text-[1.1vw] absolute right-[39.8vw] top-[0.5vw]" placeholder="Jaipur " />
-        <span className="material-symbols-outlined absolute  rounded-[5px] ml-[38vw] top-[1vw] text-[3vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]"
-         style={{ fontSize: '1.7vw'}}>
-        distance 
-        </span>
-      </div>
+    </div>
+      
 
 
 
-      {/* Services Section */}
-      <div className="absolute left-[2vw] top-[40vw] text-[2.2vw] font-semibold text-black" >Our Services</div>
+
+
+    {/* Services Section */}
+    <div className="relative left-[2vw] text-[2.2vw] font-semibold text-black" >Our Services</div>
 
       {/* Profile Completion for worker*/}
       {/* <div className="absolute  top-[0.3vw] right-[30vw] ">
@@ -232,21 +222,13 @@ openCloseLogin=function(){
         </div>
       </div> */}
 
-      {/* Notification Icon */}
-      <span className="material-symbols-outlined absolute  text-white/50"
-      style={{ fontSize: '1.8vw', top: '0.9vw', left: '93.6%'}}>notifications</span>
 
-      {/* Arrow-bounce */}
-      <div className="absolute top-[38vw] left-[48vw]  mt-10">
-      <div className="animate-bounce text-gray-600 dark:text-black">
-        <ChevronDown size={40} />
-      </div>
-    </div>
 
-      {/* Most Trending */}
-      <div className="absolute text-[2vw] font-medium text-black/70 top-[48vw] left-[3vw]" style={{fontFamily: 'sans-serif'}}>HouseHold Workers</div>
-      <div className="absolute top-[54vw] w-full overflow-hidden">
-        <div className="ml-[5vw] flex flex-wrap w-[100vw]  px-2" ref={trayRef}>
+
+    <div className=''>
+      <p className="relative text-[2vw] font-medium text-black/70 mt-[4vw] left-[3vw]" style={{fontFamily: 'sans-serif'}}>HouseHold Workers</p>
+      <div className="relative mt-[2vw] w-full ">
+        <div className="ml-[5vw] flex flex-wrap w-[100vw]   px-2" ref={trayRef}>
           {/* {renderCards(6, 'min-w-[19vw] h-[25vw] mx-[12px]')} */}
           <Link to="/jhadupocha">
             <ServiceCard Name="Jhadu pocha"  srrc="/JhaduPocha.jpg" /> {/*addons=bartan,toilet/washroom*/}
@@ -261,6 +243,7 @@ openCloseLogin=function(){
           <Link to="/allrounder" >
           <ServiceCard Name="All rounder" srrc="/allRounder.jpg"/>
           </Link>
+    </div>  
           
           
           {/* <div className='bg-[#f2f2f2] w-[19vw] h-[25vw] ml-[3vw] mt-[2vw] rounded-md border-[0.5px]'>
@@ -275,8 +258,8 @@ openCloseLogin=function(){
       </div>
 
       {/* why choose us */}
-      <p className='absolute top-[88vw] left-[3vw] text-black/70 text-[2vw]' style={{fontFamily: 'sans-serif'}}>Why Choose Us</p>
-      <div className='absolute top-[95vw] left-[17vw]'>
+      <p className='relative mt-[6vw] left-[3vw] text-black/70 text-[2vw]' style={{fontFamily: 'sans-serif'}}>Why Choose Us</p>
+      <div className='relative mt-[4vw] left-[17vw]'>
           <Whyus feature="Professional Workers" description="We provide skilled, punctual, and trained workers for every job. Each worker is vetted and committed to high service standards. You can rely on them to get the job done right the first time."/>
           <Whyus feature="Affordable Price" description="Our pricing is designed to suit middle and lower-middle class families. You don’t need to overpay for quality household help anymore. Great service, honest rates—that’s our promise."/>
           <Whyus feature="Convenience First" description="Book workers easily through our platform in just a few steps. No endless calls, no waiting—get help when you need it. We simplify the process so your daily life runs smoothly."/>
@@ -287,19 +270,20 @@ openCloseLogin=function(){
       
 
       {/* About us */}
-      <p className='absolute top-[148.5vw] left-[3vw] text-black/70 text-[2vw]' style={{fontFamily: 'sans-serif'}}>About Us</p>
+      <div>
+      <p className='relative mt-[7vw] left-[4vw] text-black/70 text-[2vw]' style={{fontFamily: 'sans-serif'}}>About Us</p>
           {/* Main Premium Quote */}
-        <div className="bg-white rounded-lg shadow-sm  p-16 relative absolute w-[80vw] top-[152vw] left-[12vw]">
+        <div className="bg-white rounded-lg shadow-sm  p-16  relative w-[80vw] mt-[1vw] left-[12vw]">
           <div className="absolute top-8 left-8">
             <span className="text-6xl font-serif text-gray-300 leading-none select-none">"</span>
           </div>
 
           <div className="pt-8 pb-4 px-8">
-            <p className="text-lg text-gray-700 leading-relaxed mb-8 font-light">
+            <p className="text-[1.2vw] text-gray-700 leading-relaxed mb-8 font-light">
               At our core, we believe that quality help at home shouldn't be a luxury. Our platform was built to solve a problem faced by millions of urban households—finding trustworthy, professional workers without the stress, overpricing, or endless searching. We're starting where the need is greatest: in middle and lower-middle-class homes, where people often struggle to find reliable help for essential daily tasks. From cleaning and cooking to household repairs and caregiving, we bring all types of workers under one roof, ensuring convenience, safety, and affordability. But we’re more than just a service. We’re a people-first platform that values long-term relationships, not just one-time tasks. Our team is dedicated to making sure every worker is verified, every customer is heard, and every issue is resolved fast—because your home deserves care, and your time deserves respect. 
             </p>
 
-            <p className="text-lg text-gray-700 leading-relaxed mb-8 font-light">
+            <p className="text-[1.4vw] text-gray-700 leading-relaxed mb-8 font-light">
               We’re on a mission to make everyday life easier, safer, and more organized—one household at a time.
             </p>
           </div>
@@ -308,6 +292,9 @@ openCloseLogin=function(){
             <span className="text-6xl font-serif text-gray-300 leading-none select-none">"</span>
           </div>
         </div>
+      </div>
+
+
       {/* Household Workers */}
       {/* <div className="absolute text-[2vw] font-medium text-black/70 top-[89vw] left-[3vw]">Household workers</div>
       <div className="absolute left-[1vw] top-[96vw] w-full flex flex-col items-center">
@@ -327,25 +314,31 @@ openCloseLogin=function(){
       </div> */}
 
       {/* New Arrivals */}
-      <div className="absolute text-[2vw] font-medium text-black/70 top-[196vw] left-[4vw]" style={{fontFamily: 'sans-serif'}}>Arriving soon</div>
-      <div className="absolute top-[202.2vw]  w-[100vw] left-[10vw] flex-wrap flex ">
-        <ArrivalCard Name="chef" description="includes indian flavours and zaayka" srrc="/allRounder.jpg"/>
-        <ArrivalCard Name="waiter" description="includes indian flavours and zaayka" srrc="/bartan.jpg"/>
-        <ArrivalCard Name="repair" description="includes indian flavours and zaayka" srrc="/JhaduPocha.jpg"/>
-        <ArrivalCard Name="car clean" description="includes indian flavours and zaayka" srrc="/allRounder.jpg"/>
-        <ArrivalCard Name="Barber" description="includes indian flavours and zaayka" srrc="/allRounder.jpg"/>
-        <ArrivalCard Name="manicure & padicure" description="includes indian flavours and zaayka" srrc="/allRounder.jpg"/>
+      <div>
+      <p className="relative text-[2vw] font-medium text-black/70 mt-[5vw] left-[4vw]" style={{fontFamily: 'sans-serif'}}>Coming soon</p>
+      <div className="relative mt-[4vw]  w-[100vw] left-[10vw] flex-wrap flex ">
+        <ArrivalCard Name="chef" description="Expertly crafted dishes with authentic Indian spices." srrc="/chef2.jpg"/>
+        <ArrivalCard Name="waiter" description="Professional service that makes every meal special." srrc="/waiter.jpg"/>
+        <ArrivalCard Name="repair" description="Quick and reliable fixes to keep things running." srrc="/repair.jpg"/>
+        <ArrivalCard Name="car clean" description="Sparkling clean cars, inside and out." srrc="/carClean.webp"/>
+        <ArrivalCard Name="Barber" description="Sharp cuts and fresh styles, every time." srrc="/barber.avif"/>
+        <ArrivalCard Name="manicure & padicure" description="Pampering hands and feet for a polished look." srrc="/manipadi.jpg"/>
+
         {/* <div className="flex ml-[3vw] overflow-x-scroll px-2" ref={tray4Ref}>
           {renderCards(12, 'min-w-[25vw] h-[18vw] mx-[10px]')}
         </div> */}
         
       </div>
+      </div>
+
+
       {/* <button className="absolute left-[10px] top-1/2 transform -translate-y-1/2 w-[30px] h-[30px] rounded-full bg-white shadow" onClick={() => scrollTray(-1, tray4Ref)}>&#8249;</button>
         <button className="absolute right-[10px] top-1/2 transform -translate-y-1/2 w-[30px] h-[30px] rounded-full bg-white shadow" onClick={() => scrollTray(1, tray4Ref)}>&#8250;</button> */}
 
       {/* locations */}
-      <div className="absolute text-[2vw] font-medium text-black/70 top-[231vw] mt-[12vw] left-[3vw]" style={{fontFamily: 'sans-serif'}}>Locations</div>
-      <div className="absolute left-[5vw] top-[250vw] w-full overflow-hidden">
+      <div>
+      <p className="relative text-[2vw] font-medium text-black/70 mt-[7vw]  left-[3vw]" style={{fontFamily: 'sans-serif'}}>Locations</p>
+      <div className="relative left-[5vw] mt-[3vw] mb-[5vw] w-full overflow-hidden">
         <div className="flex  ml-[13vw]  px-2" >
           {/* {renderCards(4, 'min-w-[18vw] h-[10vw] mx-[10px]')} */}
           <div className='bg-[#ffffff] w-[17vw] h-[14vw] ml-[21vw] mt-[2vw] rounded-md border-[1px] border-[#cacaca]'>
@@ -358,28 +351,33 @@ openCloseLogin=function(){
           </div> */}
         </div>
     </div>
-
-      {/* Footer */}
-      <div className="absolute top-[275vw] w-full h-[100vw] max-h-[600px] bg-black">
-        <FAQSection/>
       </div>
-    </div>
-    </div>
+
+      
+        
+     
+</div>
   );
 };
 
 function UrbanLite() {
+  const [LoggedIn, setLoggedIn] = useState(false);
   return (
     <Router>
+      <Nav LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>
+      <ScrollToTop paths={["/contactUs", "/RefundsAndCancellation","/termsAndConditions"]} />
       <Routes>
-        <Route path="/" element={<UrbanLite2/>} />
+          <Route path="/" element={<UrbanLite2/>}/>
+          <Route path="/termsAndConditions" element={<Tnc/>}/>
+          <Route path="/contactUs" element={<ContactUs/>}/>
+          <Route path="/RefundsAndCancellation" element={<Refunds/>}/>
         <Route path="/jhadupocha" element={<JhaduPocha heading="Jhadu Pocha"/>}/>
         <Route path="/cook" element={<BookingsPage heading="Cook"/>}/>
         <Route path="/allrounder" element={<BookingsPage heading="All Rounder"/>}/>
         <Route path="/bartan" element={<BookingsPage heading="Bartan"/>}/>
       </Routes>
+      <Footer/>
     </Router>
   );
 }
 export default UrbanLite;
-export {openCloseLogin}

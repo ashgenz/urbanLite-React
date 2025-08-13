@@ -4,7 +4,7 @@ import { Card2, CardContent2 } from "./Card2";
 export default function ArrivalCard({Name,srrc,description}) {
   return (
     <div className="px-8 pt-[2vw]">
-      <Card2 className="overflow-hidden shadow-lg border-0" style={{ width: "23vw", height: "15vw", minWidth: 280, minHeight: 200 }}>
+      <Card2 className="overflow-hidden shadow-lg border-0" style={{ width: "23vw", height: "17vw", minWidth: 280, minHeight: 200 }}>
         <CardContent2 className="p-0 h-full flex flex-col">
           {/* Image Section */}
           <div className="h-3/4 overflow-hidden">

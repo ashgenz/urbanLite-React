@@ -156,7 +156,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import LocationPicker2 from './LocationPicker2';
 import {seeMarker,setMarker3} from './LocationPicker2';
-import {openCloseLogin} from './Gpt';
+import {openCloseSignin} from './Nav';
+import {openCloseLogin} from './Nav';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck } from  '@fortawesome/free-solid-svg-icons';
 import { marker } from 'leaflet';
@@ -170,6 +171,7 @@ const OTP = () => {
     
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [Password, setPass] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -197,26 +199,29 @@ const [otpVerified, setOtpVerified] = useState(true);  // As fixed earlier
 
   //handle submit
   const handleSubmit = async () => {
-  if (!otpVerified) return alert("✅ Please verify OTP first");
-  if (!seeMarker() && !marker2 ) return alert("📍 Please select a location");
-  if (!Name) return alert("✍️ Please enter name");
-  if (!phone) return alert("✍️ Please enter phone Number");
+    if (!Name) return alert("✍️ Please enter name");
+    if (!phone) return alert("✍️ Please enter phone Number");
+    if (!Password) return alert("✍️ Please create a Password");
+    if (!otpVerified) return alert("✅ Please verify OTP first");
+    if (!seeMarker() && !marker2 ) return alert("📍 Please select a location");
 
   try {
-    const response = await axios.post("http://localhost:4000/api/user", {
+    const response = await axios.post("http://localhost:4000/api/user/signin/", {
       Name: Name.trim(),
-      phone: phone.trim(),
+      Phone: phone.trim(),
       location: {
         lat: marker[0],
         lng: marker[1],
       },
+      Password:Password.trim()
     });
 
     alert("🎉 Data saved to MongoDB successfully!");
-    openCloseLogin(); // Close login modal only on successful new save
+    openCloseSignin(); // Close login modal only on successful new save
   
 } catch (err) {
   if (err.response && err.response.status === 409) {
+    console.log(err);
     alert("⚠️ Phone Number exists in the database.");
   } else {
     console.error(err);
@@ -292,16 +297,16 @@ const [otpVerified, setOtpVerified] = useState(true);  // As fixed earlier
         
       /> */}
         <div className="ml-[3vw] py-[1vw]">
-          <label>Phone Number</label> <br />
+          <label>Mobile Number</label> <br />
           <input
-            type="tel"
-            placeholder="enter phone number"
-            value={phone}
-            disabled={otpVerified} 
+            type="number"
+            placeholder="enter Mobile number"
+            value={phone} 
             onChange={(e) => setPhone(e.target.value)}
             className="w-[13vw] px-[1vw] h-[2vw] mt-[0vw] bg-[#efefef]"
           />
         </div>
+
       <button className="text-blue-500 text-[0.9vw] absolute top-[11vw] px-[0.5vw] left-[11vw] rounded-md hover:cursor-pointer hover:bg-[#e8e8e8] "
        onClick={sendOtp} disabled={loading}>Send OTP</button>
 
@@ -323,22 +328,35 @@ const [otpVerified, setOtpVerified] = useState(true);  // As fixed earlier
              className="w-[9vw] px-[1vw] h-[2vw] bg-[#efefef]"
            />
         </div>
+          {/* Password */}
+          <div className="ml-[3vw] py-[1vw]">
+          <label>Password</label> <br />
+          <input
+            type="text"
+            placeholder='Create Password'
+            value={Password}
+             onChange={(e) => setPass(e.target.value)}
+            className="w-[13vw] px-[1vw] h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
+          />
+        </div>
+
+
         {otpVerified && (<FontAwesomeIcon icon={faCheck} style={{ color: "#03e21d" }}  className='absolute top-[9.35vw] left-[26.5vw]'/>)}
       <button 
       className="text-green-600 absolute top-[11vw] text-[0.9vw] px-[0.5vw] rounded-md left-[23vw] hover:cursor-pointer hover:bg-[#e8e8e8]"
       onClick={verifyOtp} disabled={loading}>Verify OTP</button>
     </div>
-          <p className='absolute top-[12.6vw] ml-[1vw]' >Location</p>
-      <div className='-z-10 mx-auto  bg-white shadow absolute top-[15vw] h-[16.5vw] w-[26.5vw] ml-[1.5vw] border-black border-[1px] rounded-md'>
+          <p className='absolute top-[18.6vw] ml-[1vw]' >Location</p>
+      <div className='-z-10 mx-auto  bg-white shadow absolute bottom-[3.8vw] h-[16.5vw] w-[26.5vw] ml-[1.5vw] border-black border-[1px] rounded-md'>
              <LocationPicker2/>
       </div>
             
-      <button className='absolute top-[12.8vw] ml-[6vw] bg-[#ffffff] rounded-lg px-[1vw]  hover:cursor-pointer hover:border-[1px] ' onClick={getLocation}>find automatically</button>
-      <p className='text-[0.8vw] top-[13.2vw] left-[16.5vw] absolute'>or  Select below</p>
+      <button className='absolute top-[18.8vw] ml-[6vw] bg-[#ffffff] rounded-lg px-[1vw]  hover:cursor-pointer hover:border-[1px] ' onClick={getLocation}>find automatically</button>
+      <p className='text-[0.8vw] top-[19vw] left-[16.5vw] absolute'>or  Select below</p>
       <button onClick={handleSubmit} className='bg-[#8956FF]  rounded-lg px-[1vw] py-[0.4vw] ml-[1.5vw] text-[1vw] absolute bottom-[0.8vw] w-[90%] hover:bg-[#9060ff] hover:cursor-pointer hover:border-[1px]  '>Submit</button>
-        <span className='material-symbols-outlined absolute top-[0.3vw] right-[0.3vw] hover:cursor-pointer' onClick={openCloseLogin}>
-close
-</span>
+        <span className='material-symbols-outlined absolute top-[0.3vw] right-[0.3vw] hover:cursor-pointer' onClick={openCloseSignin}>
+        close
+        </span>
     </>
   );
 };
