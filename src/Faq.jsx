@@ -10,7 +10,7 @@ export default function FAQSection() {
     {
       question: "Are workers verified?",
       answer:
-        "Yes, all workers go through ID checks, background verification, and skill assessments before onboarding.",
+        "Yes, all workers go through ID checks, background verification, and skill assesmdents before onboarding.",
     },
     {
       question: "What if something goes wrong?",
@@ -33,17 +33,17 @@ export default function FAQSection() {
     <section className="w-full left-[50vw] pt-16  bg-[#000]">
       <div className="max-w-4xl px-4 md:px-6 mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-white dark:text-white">
             Frequently Asked Questions
           </h2>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-[4vw] md:text-[1vw] text-white">
             Answers to common questions about our worker services.
           </p>
         </div>
 
         <Accordion>
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} question={faq.question} answer={faq.answer} />
+            <AccordionItem  key={index} question={faq.question} answer={faq.answer} />
           ))}
         </Accordion>
       </div>

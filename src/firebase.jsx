@@ -239,7 +239,7 @@ const [otpVerified, setOtpVerified] = useState(true);  // As fixed earlier
     if (!phone) return alert('📱 Enter a valid phone number');
     setLoading(true);
     try {
-      const res = await axios.get(`https://2factor.in/API/V1/${API_KEY}/SMS/${phone}/AUTOGEN`);
+      const res = await axios.get(`https://2factor.in/API/V1/${API_KEY}/mdS/${phone}/AUTOGEN`);
       setSessionId(res.data.Details);
       alert('📤 OTP sent!');
     } catch (err) {
@@ -258,7 +258,7 @@ const [otpVerified, setOtpVerified] = useState(true);  // As fixed earlier
 
     try {
       const res = await axios.get(
-        `https://2factor.in/API/V1/${API_KEY}/SMS/VERIFY/${sessionId}/${otp}`
+        `https://2factor.in/API/V1/${API_KEY}/mdS/VERIFY/${sessionId}/${otp}`
       );
 
 

@@ -34,7 +34,7 @@ export default function Nav({ LoggedIn, setLoggedIn }){
       } catch (err) {
         console.error(err.response?.data || err.message);
         setLoggedIn(false);
-        alert("log in failure");
+
       }
     };
 
@@ -53,38 +53,40 @@ export default function Nav({ LoggedIn, setLoggedIn }){
     }
     return <div className="static">
         {/* Header */}
-     <div className="w-full h-[3.5vw] bg-black  top-0 left-0 z-10">
+     <div className="w-full h-[16vw] md:h-[3.5vw] bg-black  top-0 left-0 z-10">
         <Link to="/">
-        <p className="absolute text-white font-bold text-[1.8vw] left-[40px] top-[0.5vw]">UrbanLite</p>
+        <p className=" absolute text-white font-bold text-[6.3vw] md:text-[1.8vw] left-[20px] md:left-[40px] top-[3.8vw] md:top-[0.5vw]">UrbanLite</p>
         </Link>
         <Link to="/">
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[30vw]' style={{fontFamily: 'sans-serif'}}>Services</p>
+        <p className=' md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[30vw]' style={{fontFamily: 'sans-serif'}}>Services</p>
         </Link>
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[46vw]' style={{fontFamily: 'sans-serif'}}>About us</p>
-        <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[38vw]' style={{fontFamily: 'sans-serif'}}>Why us</p>
+        <p className=' md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[46vw] cursor-pointer' style={{fontFamily: 'sans-serif'}}>About us</p>
+        <Link to="/bookings">
+            <p className='md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[38vw] cursor-pointer' style={{fontFamily: 'sans-serif'}}>Bookings</p>
+        </Link>
         <Link  to="/contactUs">
-         <p className='text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[53.1vw]' style={{fontFamily: 'sans-serif'}}>Contact us</p>
+         <p className='md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[53.1vw]' style={{fontFamily: 'sans-serif'}}>Contact us</p>
          </Link>
         {/* <a href="https://4x07dkrh-8600.inc1.devtunnels.ms/" className="absolute text-[#8956ff] text-[1.2vw] top-[0.8vw] left-[76.2vw]">user</a>
         <a href="https://4x07dkrh-9600.inc1.devtunnels.ms/" className="absolute text-[#8956ff] text-[1.2vw] top-[0.8vw] left-[80vw]">w-user</a> */}
-        <span className="material-symbols-outlined absolute text-white/50"
+        <span className=" material-symbols-outlined absolute md:block hidden text-white/50"
             style={{ fontSize: '2.3vw', top: '0.6vw', left: '97%', position: 'absolute' }}>
             account_circle
         </span>
         { !LoggedIn &&
         <div>
-        <button onClick={openCloseSignin} className='absolute top-[0.6vw] right-[13vw] bg-[#000000]  rounded-lg px-[1vw] py-[0.4vw] text-[1vw]   text-white  hover:bg-[#242424] hover:cursor-pointer' >Sign in </button>
-        <button onClick={openCloseLogin} className='absolute top-[0.6vw] right-[8vw] bg-[#8956FF]  rounded-lg px-[1vw] py-[0.4vw] text-[1vw]   text-white hover:border-[1px] hover:bg-[#9060ff] hover:cursor-pointer' >Login</button>
+        <button onClick={openCloseSignin} className='md:block hidden absolute top-[0.6vw] right-[13vw] bg-[#000000]  rounded-lg px-[1vw] py-[0.4vw] text-[1vw]   text-white  hover:bg-[#242424] hover:cursor-pointer' >Sign in </button>
+        <button onClick={openCloseLogin} className='md:block block absolute top-[3.8vw] right-[17vw] md:top-[0.6vw] md:right-[8vw] bg-[#8956FF]  rounded-lg px-[4.5vw] md:px-[1vw] py-[1.5vw] md:py-[0.4vw] text-[4vw] md:text-[1vw]   text-white hover:border-[1px] hover:bg-[#9060ff] hover:cursor-pointer' >Login</button>
         </div>
         }
         { LoggedIn && (
           <div>
-            <div className=" cursor-pointer border-[#0067f8] border-[0.15vw] absolute z-10 top-[0.82vw] right-[0.81vw] rounded-full overflow-hidden h-[2vw]">            
+            <div className="md:block hidden cursor-pointer border-[#0067f8] border-[0.15vw] absolute z-10 top-[0.82vw] right-[0.81vw] rounded-full overflow-hidden h-[2vw]">            
               <img className=" h-[1.81vw] " src="/hamster.jpg" alt="" />
             </div>
           <button 
             onClick={handleLogout} 
-            className="absolute top-[0.6vw] right-[8vw] bg-[#000] rounded-lg px-[1vw] py-[0.4vw] text-[1vw] text-white hover:bg-[#2d2d2d]"
+            className="md:block hidden absolute top-[0.6vw] right-[8vw] bg-[#000] rounded-lg px-[1vw] py-[0.4vw] text-[1vw] text-white hover:bg-[#2d2d2d]"
             >
             Logout
             </button>
@@ -93,16 +95,20 @@ export default function Nav({ LoggedIn, setLoggedIn }){
       </div>
 
       {/* login section */}
-      {SigninOpenClose &&   <div className='border-[1px] fixed h-[41vw] w-[29.5vw] top-[4vw] bg-[#f7f7f7] left-[35vw] z-10 rounded-lg'>
+      {SigninOpenClose &&   <div className=' border-[1px] fixed h-[41vw] w-[29.5vw] top-[4vw] bg-[#f7f7f7] left-[35vw] z-10 rounded-lg'>
       <Firebase />
       </div>}
-      {loginOpenClose &&   <div className='border-[1px] fixed h-[18vw] w-[28vw] top-[12vw] bg-[#f7f7f7] left-[35vw] z-10 rounded-lg'>
+      {loginOpenClose &&   <div className='border-[1px] fixed h-[75vw] md:h-[18vw] w-[80vw] md:w-[28vw] top-[40vw] md:top-[12vw] bg-[#f7f7f7] left-[10vw] md:left-[35vw] z-10 rounded-lg'>
       <Login  LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>
       </div>
       }
       {/* Notification Icon */}
-      <span className="material-symbols-outlined absolute  text-white/50"
+      <span className=" material-symbols-outlined md:block hidden absolute  text-white/50"
       style={{ fontSize: '1.8vw', top: '0.9vw', left: '93.6%'}}>notifications</span>
+      {/* menu */}
+      <span className="block text-[8vw] absolute top-[4.5vw] right-[4vw] text-[#fff] md:hidden material-symbols-outlined">
+      menu
+        </span>
       </div>
       }
     

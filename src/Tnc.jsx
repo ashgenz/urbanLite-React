@@ -78,7 +78,7 @@ export default function TermsAndConditions() {
           <h2 className="text-2xl font-semibold mb-2">8. Account Suspension</h2>
           <p>
             Urbanlite reserves the right to suspend or ban any user account in cases of misuse, 
-            harassment, fraudulent activity, or violation of these terms.
+            harasmdent, fraudulent activity, or violation of these terms.
           </p>
         </section>
 

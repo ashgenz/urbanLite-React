@@ -4,10 +4,10 @@ import { Card, CardContent } from "./Card";
 
 export default function ServiceCard({Name,srrc}) {
   return (
-    <div className=" p-8 h-[30vw] mt-[1vw] flex ">
+    <div className="relative pl-[9.2vw] md:p-8 h-[100vw] md:h-[30vw] mt-[2vw] md:mt-[1vw] flex ">
       <Card
-        className="relative border-[#ffffff] overflow-hidden transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl hover:shadow-[#eff8ff] cursor-pointer group border-[1px] hover:border-[#ffffff]"
-        style={{ height: "25vw", width: "19vw", minHeight: "300px", minWidth: "200px" }}
+        className="h-[90vw] w-[85vw] md:h-[25vw] md:w-[19vw] md:min-h-[300px] md:min-w-[200px]  relative border-[#ffffff] overflow-hidden transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl hover:shadow-[#eff8ff] cursor-pointer group border-[1px] hover:border-[#ffffff]"
+        
       >
         <CardContent className="p-0 h-full flex flex-col">
           {/* Image Section */}
@@ -22,11 +22,11 @@ export default function ServiceCard({Name,srrc}) {
 
           {/* Content Section */}
           <div className="flex-1 p-4 flex flex-col justify-between">
-            <p className=" text-[1.1vw] font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors duration-300">
+            <p className="text-[6vw] md:text-[1.1vw] font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors duration-300">
               {Name}
             </p>
 
-            <p className="text-[0.9vw] text-gray-600 mb-3 line-clamp-2 flex-1">
+            <p className="text-[3vw] md:text-[0.9vw] text-gray-600 mb-3 line-clamp-2 flex-1">
               "Liked the service very much! Professional cleaning with attention to detail. Highly recommended for
               regular house cleaning."
             </p>
@@ -47,7 +47,7 @@ export default function ServiceCard({Name,srrc}) {
                 4.0
               </span>
             </div>
-            <button className="absolute bottom-[1vw] right-[1vw] text-[0.8vw] hover:cursor-pointer">Book Now</button>
+            <button className="absolute bottom-[4vw] right-[4vw] md:bottom-[1vw] md:right-[1vw] text-[3vw] md:text-[0.8vw] hover:cursor-pointer">Book Now</button>
           </div>
 
           {/* Hover Border */}

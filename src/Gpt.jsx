@@ -8,7 +8,7 @@ import ArrivalCard from './ArrivalCard';
 import Whyus from './Whyus';
 // import FAQSection from './Faq';
 import {BrowserRouter as Router,Route,Routes,Link} from "react-router-dom";
-import BookingsPage from './BookingPage';
+import BookingsPage from './BookingsPage';
 import JhaduPocha from './JhaduPocha'
 import Login from './Login';
 import Refunds from './Refunds';
@@ -17,6 +17,10 @@ import ContactUs from './ContactUs';
 import Nav from './Nav';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
+import InfiniteScroll from './InfiniteScroll';
+import Cook from './Cook';
+import Bartan from './Bartan';
+import AllRounder from './AllRounder';
 // import {
 //   GoogleMap,
 //   Marker,
@@ -95,7 +99,7 @@ import ScrollToTop from './ScrollToTop';
 //       </GoogleMap>
 
 //       {marker && (
-//         <div className="mt-4 text-sm bg-white ">
+//         <div className="mt-4 text-md bg-white ">
 //           <p><strong>Latitude:</strong> {marker.lat}</p>
 //           <p><strong>Longitude:</strong> {marker.lng}</p>
 //           {address && <p><strong>Address:</strong> {address}</p>}
@@ -163,29 +167,29 @@ const UrbanLite2 = () => {
 
     <div className=''>
       {/* Images */}
-      <img src="chef.png" alt="Chef" className="absolute w-[13vw] left-[3vw] top-[6vw]" />
-      <img src="cafeworker.png" alt="Cafe Worker" className="absolute w-[15vw] left-[10vw] top-[19vw]" />
-      <img src="cap-guy.png" alt="Cap Guy" className="absolute w-[15vw] left-[80vw] top-[11vw]" />
-      <img src="3-guy.png" alt="Three Guys" className="absolute  w-[13vw] left-[69vw] top-[23vw]" />
-      <img src="domestic-clean.png" alt="Domestic Clean" className="absolute w-[13vw]  left-[63vw] top-[4vw]" />
+      <img src="chef.png" alt="Chef" className="hidden md:block absolute w-[13vw] left-[3vw] top-[6vw]" />
+      <img src="cafeworker.png" alt="Cafe Worker" className="hidden md:block absolute w-[15vw] left-[10vw] top-[19vw]" />
+      <img src="cap-guy.png" alt="Cap Guy" className="hidden md:block absolute w-[15vw] left-[80vw] top-[11vw]" />
+      <img src="3-guy.png" alt="Three Guys" className="hidden md:block absolute  w-[13vw] left-[69vw] top-[23vw]" />
+      <img src="domestic-clean.png" alt="Domestic Clean" className="hidden md:block absolute w-[13vw]  left-[63vw] top-[4vw]" />
       {/* Headings */}
-      <div className="absolute left-[27.7vw] top-[5vw] text-black text-[2.7vw] font-bold md:block" style={{fontFamily: 'Arial'}}>
+      <div className="relative mt-[7vw]  left-[10vw] md:left-[27.7vw]   md:mt-[6vw] text-black text-[8.4vw]  md:text-[2.7vw] font-bold md:block" style={{fontFamily: 'Arial'}}>
         Skilled Worker at <br /> Your Doorstep
       </div>
-      <div className="absolute left-[28vw] top-[13vw] text-black text-[1.28vw] md:block" style={{fontFamily: 'sans-serif'}}>
+      <div className="relative  left-[12vw] md:left-[28vw] mt-[1vw] md:mt-[0vw] text-black text-[4.3vw]  md:text-[1.28vw] md:block" style={{fontFamily: 'sans-serif'}}>
         India's Best <br /> Blue collar Jobs <br /> Marketplace
       </div>
       {/* Search */}
-      <div className="absolute top-[20vw] left-[26vw] w-[80vw] gap-2">
-        <input className="bg-[#d8d8d8] rounded-full h-[3.5vw]  px-10 text-[1.3vw] w-[41vw] absolute top-[0.1vw]" placeholder="Search" />
-        <input className="bg-white pl-[1.2vw] rounded-[15px] h-[2.6vw] w-[8vw] text-[1.1vw] absolute right-[39.8vw] top-[0.5vw]" placeholder="Jaipur " />
-        <span className="material-symbols-outlined absolute  rounded-[5px] ml-[38vw] top-[1vw] text-[3vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]"
-         style={{ fontSize: '1.7vw'}}>
+      <div className="relative mt-[3vw] md:mt-[0vw] left-[7vw] md:left-[26vw] w-[80vw] gap-2">
+        <input className="bg-[#d8d8d8] h-[13vw] w-[85vw] rounded-full md:h-[3.5vw]  px-10 text-[5vw] md:text-[1.3vw] md:w-[41vw] absolute top-[0.1vw]" placeholder="Search" />
+        <input className="bg-white pl-[1.2vw] rounded-[15px] h-[9.5vw] w-[30vw] md:h-[2.6vw] md:w-[8vw] text-[3.5vw] md:text-[1.1vw] absolute right-[-3vw] md:right-[39.8vw] top-[2vw] md:top-[0.5vw]" placeholder="Jaipur " />
+        <span className="material-symbols-outlined absolute  rounded-[5px] ml-[75vw] mt-[3vw] md:ml-[38vw] md:top-[1vw] text-[7vw] md:text-[1.68vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]"
+        >
         distance 
         </span>
       </div>
       {/* suggestions */}
-        <div className='w-[35vw] h-[10vw]  absolute top-[23.5vw] left-[31vw] '>
+        <div className='h-[30vw] w-[86vw] md:w-[35vw] md:h-[10vw] top-[69.5vw]  absolute md:top-[23.5vw] left-[10vw] md:left-[31vw] '>
           <SuggestionButton Name="chef"/>
           <SuggestionButton Name="waiter"/>
           <SuggestionButton Name="Maid"/>
@@ -196,11 +200,12 @@ const UrbanLite2 = () => {
           <SuggestionButton Name="Maid"/>
           <SuggestionButton Name="Repair"/>
         </div>
-      <p className='relative mt-[39vw] left-[47.1vw] text-[1vw] ' style={{fontFamily: 'sans-serif'}}>Book Now</p>
+          <InfiniteScroll/>
+      <p className='relative mt-[10vw] md:mt-[4.5vw] left-[40.8vw] md:left-[46.8vw] text-[4vw]  md:text-[1vw] ' style={{fontFamily: 'sans-serif'}}>Book Now</p>
       {/* Arrow-bounce */}
-      <div className="absolute top-[38vw] left-[48vw]  mt-10">
+      <div className="relative md:mt-[0vw] md:left-[48vw]  mt-0 ml-[46vw] md:ml-[0vw]">
       <div className="animate-bounce text-gray-600 dark:text-black">
-        <ChevronDown size={40} />
+        <ChevronDown className='size-[9vw] md:size-[2.5vw]'/>
       </div>
       </div>
     </div>
@@ -211,7 +216,7 @@ const UrbanLite2 = () => {
 
 
     {/* Services Section */}
-    <div className="relative left-[2vw] text-[2.2vw] font-semibold text-black" >Our Services</div>
+    <div className="relative mt-[5vw] md:mt-[2vw] left-[2vw] text-[6vw] md:text-[2.2vw] font-semibold text-black" >Our Services</div>
 
       {/* Profile Completion for worker*/}
       {/* <div className="absolute  top-[0.3vw] right-[30vw] ">
@@ -219,16 +224,16 @@ const UrbanLite2 = () => {
         <p className="absolute inline text-xs text-gray-200 top-[0.5vw]  ml-[11vw] text-[0.9vw]">20%</p>
         <div className="absolute top-[2vw] w-[13vw]  bg-white rounded-full ">
           <div className=" top-0 left-0 h-[0.5vw] w-[3vw] bg-[#8956ff] rounded-full "></div>
-        </div>
+          </div>
       </div> */}
 
 
 
 
     <div className=''>
-      <p className="relative text-[2vw] font-medium text-black/70 mt-[4vw] left-[3vw]" style={{fontFamily: 'sans-serif'}}>HouseHold Workers</p>
-      <div className="relative mt-[2vw] w-full ">
-        <div className="ml-[5vw] flex flex-wrap w-[100vw]   px-2" ref={trayRef}>
+      <p className="relative text-[6vw] md:text-[2vw] font-medium text-black/70 mt-[4vw] left-[3vw]" style={{fontFamily: 'sans-serif'}}>HouseHold Workers</p>
+      <div className="relative mt-[6vw] md:mt-[2vw] w-full ">
+        <div className="ml-[-3vw] md:ml-[5vw] flex flex-wrap w-[120vw] md:w-[200vw]  px-2" ref={trayRef}>
           {/* {renderCards(6, 'min-w-[19vw] h-[25vw] mx-[12px]')} */}
           <Link to="/jhadupocha">
             <ServiceCard Name="Jhadu pocha"  srrc="/JhaduPocha.jpg" /> {/*addons=bartan,toilet/washroom*/}
@@ -258,11 +263,11 @@ const UrbanLite2 = () => {
       </div>
 
       {/* why choose us */}
-      <p className='relative mt-[6vw] left-[3vw] text-black/70 text-[2vw]' style={{fontFamily: 'sans-serif'}}>Why Choose Us</p>
-      <div className='relative mt-[4vw] left-[17vw]'>
+      <p className='relative mt-[24vw] md:mt-[6vw] left-[3vw] font-medium text-black/70 text-[6vw]  md:text-[2vw]' style={{fontFamily: 'sans-serif'}}>Why Choose Us</p>
+      <div className='relative mt-[4vw] left-[8vw] md:left-[17vw]'>
           <Whyus feature="Professional Workers" description="We provide skilled, punctual, and trained workers for every job. Each worker is vetted and committed to high service standards. You can rely on them to get the job done right the first time."/>
           <Whyus feature="Affordable Price" description="Our pricing is designed to suit middle and lower-middle class families. You don’t need to overpay for quality household help anymore. Great service, honest rates—that’s our promise."/>
-          <Whyus feature="Convenience First" description="Book workers easily through our platform in just a few steps. No endless calls, no waiting—get help when you need it. We simplify the process so your daily life runs smoothly."/>
+          <Whyus feature="Convenience First" description="Book workers easily through our platform in just a few steps. No endless calls, no waiting—get help when you need it. We simplify the process so your daily life runs mdoothly."/>
           <Whyus feature="No Fear of Theft" description="All our workers are verified with background checks and ID proof. We prioritize your family’s safety and peace of mind. Trust and transparency are core to our platform."/>
           <Whyus feature="All your Workers Need Under One Roof" description="From cleaning to cooking to repairs—we cover it all. No need to juggle multiple sources or search endlessly. We’re your go-to solution for every kind of household work."/>
           <Whyus feature="Strong Customer Relationships" description="We believe in building more than just transactions. Our team ensures respectful, consistent, and helpful interactions. Your satisfaction and trust drive everything we do"/>
@@ -271,25 +276,25 @@ const UrbanLite2 = () => {
 
       {/* About us */}
       <div>
-      <p className='relative mt-[7vw] left-[4vw] text-black/70 text-[2vw]' style={{fontFamily: 'sans-serif'}}>About Us</p>
+      <p className='relative mt-[18vw] md:mt-[7vw] left-[4vw] font-medium text-black/70 text-[6vw] md:text-[2vw]' style={{fontFamily: 'sans-serif'}}>About Us</p>
           {/* Main Premium Quote */}
-        <div className="bg-white rounded-lg shadow-sm  p-16  relative w-[80vw] mt-[1vw] left-[12vw]">
+        <div className="bg-white rounded-lg shadow-lg pt-[5vw] md:p-16  relative w-[85vw] md:w-[80vw] mt-[1vw] left-[7vw] md:left-[12vw]">
           <div className="absolute top-8 left-8">
-            <span className="text-6xl font-serif text-gray-300 leading-none select-none">"</span>
+            <span className="text-[6vw] md:text-6xl font-serif text-gray-300 leading-none select-none">"</span>
           </div>
 
-          <div className="pt-8 pb-4 px-8">
-            <p className="text-[1.2vw] text-gray-700 leading-relaxed mb-8 font-light">
+          <div className="md:pt-8 pb-4 px-8">
+            <p className="text-[4.1vw] md:text-[1.2vw] mt-[7vw] md:mt-0 text-gray-700 leading-relaxed mb-8 font-light">
               At our core, we believe that quality help at home shouldn't be a luxury. Our platform was built to solve a problem faced by millions of urban households—finding trustworthy, professional workers without the stress, overpricing, or endless searching. We're starting where the need is greatest: in middle and lower-middle-class homes, where people often struggle to find reliable help for essential daily tasks. From cleaning and cooking to household repairs and caregiving, we bring all types of workers under one roof, ensuring convenience, safety, and affordability. But we’re more than just a service. We’re a people-first platform that values long-term relationships, not just one-time tasks. Our team is dedicated to making sure every worker is verified, every customer is heard, and every issue is resolved fast—because your home deserves care, and your time deserves respect. 
             </p>
 
-            <p className="text-[1.4vw] text-gray-700 leading-relaxed mb-8 font-light">
+            <p className="text-[4.1vw] md:text-[1.2vw] text-gray-700 leading-relaxed mb-8 font-light">
               We’re on a mission to make everyday life easier, safer, and more organized—one household at a time.
             </p>
           </div>
 
           <div className="absolute bottom-8 right-8">
-            <span className="text-6xl font-serif text-gray-300 leading-none select-none">"</span>
+            <span className="text-[6vw] md:text-6xl font-serif text-gray-300 leading-none select-none">"</span>
           </div>
         </div>
       </div>
@@ -315,8 +320,8 @@ const UrbanLite2 = () => {
 
       {/* New Arrivals */}
       <div>
-      <p className="relative text-[2vw] font-medium text-black/70 mt-[5vw] left-[4vw]" style={{fontFamily: 'sans-serif'}}>Coming soon</p>
-      <div className="relative mt-[4vw]  w-[100vw] left-[10vw] flex-wrap flex ">
+      <p className="relative text-[6vw] md:text-[2vw] font-medium text-black/70 mt-[20vw] md:mt-[5vw] left-[4vw]" style={{fontFamily: 'sans-serif'}}>Coming soon</p>
+      <div className="relative mt-[4vw]  w-[100vw] left-[1vw]  md:left-[10vw] flex-wrap flex ">
         <ArrivalCard Name="chef" description="Expertly crafted dishes with authentic Indian spices." srrc="/chef2.jpg"/>
         <ArrivalCard Name="waiter" description="Professional service that makes every meal special." srrc="/waiter.jpg"/>
         <ArrivalCard Name="repair" description="Quick and reliable fixes to keep things running." srrc="/repair.jpg"/>
@@ -337,13 +342,13 @@ const UrbanLite2 = () => {
 
       {/* locations */}
       <div>
-      <p className="relative text-[2vw] font-medium text-black/70 mt-[7vw]  left-[3vw]" style={{fontFamily: 'sans-serif'}}>Locations</p>
+      <p className="relative md:text-[2vw] text-[6vw] font-medium text-black/70 mt-[18vw] md:mt-[7vw]  left-[3vw]" style={{fontFamily: 'sans-serif'}}>Locations</p>
       <div className="relative left-[5vw] mt-[3vw] mb-[5vw] w-full overflow-hidden">
         <div className="flex  ml-[13vw]  px-2" >
           {/* {renderCards(4, 'min-w-[18vw] h-[10vw] mx-[10px]')} */}
-          <div className='bg-[#ffffff] w-[17vw] h-[14vw] ml-[21vw] mt-[2vw] rounded-md border-[1px] border-[#cacaca]'>
-            <img src="/Jaipur.jpg" alt="Sikar"  className='h-[7vw] rounded-lg ml-[5.3vw] mt-[2.3vw]'/>
-            <p className='text-[#222222dd] text-[1.3vw] mt-[1vw] ml-[7vw]'  style={{fontFamily: 'sans-serif'}}>Jaipur</p>
+          <div className='bg-[#ffffff] h-[50vw] w-[50vw] md:w-[17vw] md:h-[14vw] ml-[4vw] md:ml-[21vw] mt-[2vw] rounded-md border-[1px] border-[#cacaca]'>
+            <img src="/Jaipur.jpg" alt="jaipur"  className=' h-[35vw] md:h-[7vw] rounded-lg ml-[8.8vw] md:ml-[5.3vw] mt-[2.3vw]'/>
+            <p className='text-[#222222dd] text-[5vw] md:text-[1.3vw] mt-[1vw] md:ml-[7vw] ml-[17vw]'  style={{fontFamily: 'sans-serif'}}>Jaipur</p>
           </div>
           {/* <div className='bg-[#ffffff] w-[17vw] h-[14vw] ml-[10vw] mt-[2vw] rounded-md border-[1px] border-[#cacaca]'>
             <img src="/sikar.jpg" alt="Sikar"  className='h-[7vw] rounded-lg ml-[4vw] mt-[2.3vw]'/>
@@ -365,16 +370,17 @@ function UrbanLite() {
   return (
     <Router>
       <Nav LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>
-      <ScrollToTop paths={["/contactUs", "/RefundsAndCancellation","/termsAndConditions"]} />
+      <ScrollToTop paths={["/contactUs", "/RefundsAndCancellation","/termsAndConditions","/jhadupocha","/cook","/bartan","/allrounder"]} />
       <Routes>
           <Route path="/" element={<UrbanLite2/>}/>
           <Route path="/termsAndConditions" element={<Tnc/>}/>
           <Route path="/contactUs" element={<ContactUs/>}/>
+          <Route path="/bookings" element={<BookingsPage/>}/>
           <Route path="/RefundsAndCancellation" element={<Refunds/>}/>
         <Route path="/jhadupocha" element={<JhaduPocha heading="Jhadu Pocha"/>}/>
-        <Route path="/cook" element={<BookingsPage heading="Cook"/>}/>
-        <Route path="/allrounder" element={<BookingsPage heading="All Rounder"/>}/>
-        <Route path="/bartan" element={<BookingsPage heading="Bartan"/>}/>
+        <Route path="/cook" element={<Cook/>}/>
+        <Route path="/allrounder" element={<AllRounder/>}/>
+        <Route path="/bartan" element={<Bartan/>}/>
       </Routes>
       <Footer/>
     </Router>

@@ -8,12 +8,12 @@ export function AccordionItem({ question, answer }) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm transition-all">
+    <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden shadow-md transition-all">
       <button
-        className="w-full flex justify-between items-center px-5 py-4 text-left text-lg font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        className="w-full flex justify-between items-center px-5 py-4 text-left text-lg font-medium text-gray-900 dark:text-white hover:bg-[#171717] dark:hover:bg-gray-800 transition"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>{question}</span>
+        <span className="text-white">{question}</span>
         <svg
           className={`w-5 h-5 transform transition-transform duration-300 ${
             isOpen ? "rotate-180" : ""
@@ -27,7 +27,7 @@ export function AccordionItem({ question, answer }) {
         </svg>
       </button>
       {isOpen && (
-        <div className="px-5 pb-4 text-sm text-gray-700 dark:text-gray-300">{answer}</div>
+        <div className="px-5 pb-4 text-md text-white">{answer}</div>
       )}
     </div>
   )

@@ -45,7 +45,7 @@ export default function Login({ LoggedIn, setLoggedIn }){
         {/* OAuth - Email */}
 
         {/* Normal Login */}
-        <div  className="w-[450px] ml-[2vw] mt-[1vw]  h-[12vw] flex flex-wrap">
+        <div  className="w-[450px] ml-[2vw] mt-[6vw] md:mt-[1vw]  h-[12vw] flex flex-wrap">
         <div className="ml-[3vw] py-[1vw]">
           <label>Mobile number</label> <br />
           <input
@@ -53,21 +53,22 @@ export default function Login({ LoggedIn, setLoggedIn }){
             placeholder='Enter Your Name'
             value={Phone} 
             onChange={(e) => setPhone(e.target.value)}
-            className="w-[18vw] px-[1vw] h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
+            className="h-[8vw] w-[60vw] md:w-[18vw] px-[1vw] md:h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
           />
         </div>
-        <div className="ml-[3vw] py-[2vw]">
+        <br />
+        <div className="ml-[3vw] py-[2vw] mt-[6vw] md:mt-0">
           <label>Password</label> <br />
           <input
             type="text"
             placeholder='Enter Your Name'
             value={Password} 
             onChange={(e) => setPass(e.target.value)}
-            className="w-[18vw] px-[1vw] h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
+            className="h-[8vw] w-[60vw] md:w-[18vw] px-[1vw] md:h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
           />
         </div>
         </div>
-      <button onClick={handleSubmit} className='bg-[#8956FF]  rounded-lg px-[1vw] py-[0.4vw] ml-[1.5vw] text-[1vw] absolute bottom-[0.8vw] w-[90%] hover:bg-[#9060ff] hover:cursor-pointer hover:border-[1px]  '>Submit</button>
+      <button onClick={handleSubmit} className='bg-[#8956FF]  rounded-lg px-[30vw] md:px-[1vw] py-[2vw] md:py-[0.4vw] ml-[1.5vw] text-[4.2vw] md:text-[1vw] absolute bottom-[0.8vw] w-[90%] hover:bg-[#9060ff] hover:cursor-pointer hover:border-[1px]  '>Submit</button>
         <span className='material-symbols-outlined absolute top-[0.3vw] right-[0.3vw] hover:cursor-pointer' onClick={openCloseLogin}>
        close
         </span>
