@@ -46,9 +46,11 @@ export default function Nav({ LoggedIn, setLoggedIn }){
     const [SigninOpenClose,setClose1]=useState(false);
     const [loginOpenClose,setClose2]=useState(false);
     openCloseSignin=function(){
+      setClose2(false);
       setClose1(!SigninOpenClose)
     }
     openCloseLogin=function(){
+      setClose1(false);
       setClose2(!loginOpenClose)
     }
     return <div className="static">

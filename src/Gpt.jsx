@@ -21,6 +21,7 @@ import InfiniteScroll from './InfiniteScroll';
 import Cook from './Cook';
 import Bartan from './Bartan';
 import AllRounder from './AllRounder';
+import WorkerRegister from './WorkerRegister';
 // import {
 //   GoogleMap,
 //   Marker,
@@ -377,10 +378,11 @@ function UrbanLite() {
           <Route path="/contactUs" element={<ContactUs/>}/>
           <Route path="/bookings" element={<BookingsPage/>}/>
           <Route path="/RefundsAndCancellation" element={<Refunds/>}/>
-        <Route path="/jhadupocha" element={<JhaduPocha heading="Jhadu Pocha"/>}/>
-        <Route path="/cook" element={<Cook/>}/>
-        <Route path="/allrounder" element={<AllRounder/>}/>
-        <Route path="/bartan" element={<Bartan/>}/>
+<Route path="/cook" element={<Cook LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />
+<Route path="/bartan" element={<Bartan LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />
+<Route path="/allrounder" element={<AllRounder LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />
+<Route path="/jhadupocha" element={<JhaduPocha heading="Jhadu Pocha" LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />
+        <Route path="/workerregister" element={<WorkerRegister/>}/>
       </Routes>
       <Footer/>
     </Router>

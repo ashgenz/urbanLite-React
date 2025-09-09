@@ -68,25 +68,74 @@ export default function BookingsPage() {
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {bookings.map((booking) => (
-            <Card key={booking._id} className="shadow-lg rounded-2xl">
-              <CardContent className="p-4 space-y-2">
-                <h2 className="text-lg font-semibold">{booking.WorkName}</h2>
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(booking.Date).toLocaleDateString()}
-                </p>
-                <p><strong>Time Slot:</strong> {booking.TimeSlot}</p>
-                <p><strong>Plan:</strong> {booking.WhichPlan}</p>
-                <p>
-                  <strong>Location:</strong> Lat {booking.location.lat}, Lng {booking.location.lng}
-                </p>
-                <p><strong>Customer Phone:</strong> {booking.TempPhoneCustomer}</p>
-                <p><strong>Worker Phone:</strong> {booking.TempPhoneWorker}</p>
-                <p>
-                  <strong>Rooms:</strong> {booking.NoOfRooms} | <strong>Kitchens:</strong> {booking.NoOfKitchen} | <strong>Toilets:</strong> {booking.NoOfToilets}
-                </p>
-              </CardContent>
-            </Card>
+<Card key={booking._id} className="shadow-lg rounded-2xl relative">
+  {/* Status Flag */}
+  <div
+    className={`absolute top-2 right-2 px-3 py-1 text-sm font-semibold rounded-lg text-white ${
+      !booking.IdWorker || booking.IdWorker === "demoWorker"
+        ? "bg-red-500"
+        : "bg-green-500"
+    }`}
+  >
+    {(!booking.IdWorker || booking.IdWorker === "demoWorker")
+      ? "Not Accepted"
+      : "Accepted"}
+  </div>
+
+  <CardContent className="p-4 space-y-2">
+    <h2 className="text-lg font-semibold">{booking.WorkName}</h2>
+    <p><strong>Worker ID:</strong> {booking.IdWorker || "N/A"}</p>
+    <p><strong>Worker Mobile:</strong> {booking.TempPhoneWorker}</p>
+    <p><strong>Your Phone:</strong> {booking.TempPhoneCustomer}</p>
+    <p><strong>Date:</strong> {new Date(booking.Date).toLocaleDateString()}</p>
+    <p><strong>Plan:</strong> {booking.WhichPlan}</p>
+
+    {/* Branch based on All-Rounder vs Single Service */}
+    {booking.services && booking.services.length > 0 ? (
+      <div className="mt-3">
+        <p className="font-semibold">Services Included:</p>
+        <ul className="list-disc list-inside text-sm">
+          {booking.services.map((srv) => (
+            <li key={srv._id}>
+              <strong>{srv.WorkName}</strong>
+              {srv.FrequencyPerDay && ` • ${srv.FrequencyPerDay}`}
+              {srv.NoOfPeople && ` • ${srv.NoOfPeople}`}
+              {srv.JhaduTimeSlot && ` • Slot: ${srv.JhaduTimeSlot}`}
+              {srv.FrequencyPerWeek && ` • ${srv.FrequencyPerWeek}`}
+              {srv.NoOfRooms ? ` • Rooms: ${srv.NoOfRooms}` : ""}
+              {srv.NoOfKitchen ? ` • Kitchens: ${srv.NoOfKitchen}` : ""}
+              {srv.NoOfToilets ? ` • Toilets: ${srv.NoOfToilets}` : ""}
+              {srv.AmountOfBartan ? ` • Utensils: ${srv.AmountOfBartan}` : ""}
+              {srv.AmountOfBartan ? ` • Utensils: ${srv.AmountOfBartan}` : ""}
+            </li>
+          ))}
+        </ul>
+        <p><strong>Estimated Price:</strong> ₹{booking.EstimatedPrice}</p>
+      </div>
+    ) : (
+      <div className="mt-3">
+        {/* Single service booking */}
+        {booking.NoOfRooms !== undefined && (
+          <p><strong>Rooms:</strong> {booking.NoOfRooms}</p>
+        )}
+        {booking.NoOfKitchen !== undefined && (
+          <p><strong>Kitchens:</strong> {booking.NoOfKitchen}</p>
+        )}
+        {booking.NoOfToilets !== undefined && (
+          <p><strong>Toilets:</strong> {booking.NoOfToilets}</p>
+        )}
+        {booking.JhaduTimeSlot && (
+          <p><strong>Time Slot:</strong> {booking.JhaduTimeSlot}</p>
+        )}
+        {booking.FrequencyPerWeek && (
+          <p><strong>Frequency:</strong> {booking.FrequencyPerWeek}</p>
+        )}
+      </div>
+    )}
+  </CardContent>
+</Card>
+
+
           ))}
         </div>
       )}

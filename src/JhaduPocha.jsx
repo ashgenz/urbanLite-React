@@ -1,32 +1,84 @@
-import React, { useState } from "react";
+import React, { useState,useMemo } from "react";
 import axios from "axios";
 import TimeSlotDropdown from "./TimeSlotDropdown";
 import { useNavigate } from "react-router-dom";
+import { UNIT_PRICES } from "./priceConfig";
+// import Math from "Math"
 
 // Use Vite env if present, otherwise fallback to localhost:6000
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-export default function JhaduPocha({ heading }) {
+export default function JhaduPocha({LoggedIn, heading }) {
   const navigate = useNavigate();
 
 const [formData, setFormData] = useState({
   bookingId: Date.now().toString(),
-  IdWorker: "demoWorker",   // keep worker
+  IdWorker: "demoWorker",
   TempPhoneCustomer: "9999999999",
   TempPhoneWorker: "8888888888",
   location: { lat: 0, lng: 0 },
-  WorkName: "Jhadu Pocha",
+  WorkName: "All Rounder Service",
   MonthlyOrOneTime: "Monthly",
-  NoOfRooms: 0,
-  NoOfKitchen: 0,
-  HallSize: 0,
-  NoOfToilets: 0,
-  AmountOfBartan: 0,
-  TimeSlot: "",
-  Date: new Date(),
   WhichPlan: "Standard",
+  Date: new Date(),
   address: "",
+  Months: 1,   // 👈 add this
 });
+
+const JhaduPochaActive = true; // always active in this form
+const ToiletActive = formData.NoOfToilets > 0;
+const BartanActive = formData.AmountOfBartan > 0;
+
+const estimatedPrice = useMemo(() => {
+  const unit = UNIT_PRICES[formData.MonthlyOrOneTime];
+  const days =
+    formData.MonthlyOrOneTime === "Monthly" ? 30 * formData.Months : 1;
+
+  // --- Apply defaults from plan ---
+  let jhaduFrequency =
+    formData.WhichPlan === "Premium"
+      ? "Daily"
+      : formData.WhichPlan === "Standard"
+      ? "Alternate day"
+      : formData.JhaduFrequency;
+
+  let toiletFreq =
+    formData.WhichPlan === "Custom"
+      ? formData.FrequencyPerWeek
+      : "Twice a week"; // default for both Standard & Premium
+
+  let bartanFreq =
+    formData.WhichPlan === "Premium"
+      ? "Twice a day"
+      : formData.WhichPlan === "Standard"
+      ? "Once a day"
+      : formData.FrequencyPerDay;
+
+  // ✅ Jhadu factor
+  let jhaduFactor = jhaduFrequency === "Alternate day" ? 0.5 : 1;
+
+  // ✅ Toilet factor
+  let toiletFactor = 0;
+  if (toiletFreq === "Twice a week") toiletFactor = 2 / 7;
+  if (toiletFreq === "Thrice a week") toiletFactor = 3 / 7;
+
+  // ✅ Bartan factor
+  let bartanFactor = bartanFreq === "Twice a day" ? 2 : 1;
+
+  // ✅ Final price calculation
+  const rawPrice =
+    Math.round(
+      (formData.NoOfRooms * unit.room +
+        formData.NoOfKitchen * unit.kitchen +
+        formData.HallSize * unit.hall) *
+        jhaduFactor +
+        formData.NoOfToilets * unit.toilet * toiletFactor +
+        formData.AmountOfBartan * unit.bartan * bartanFactor
+    ) * days;
+
+  return rawPrice;
+}, [formData]);
+
 
 
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +89,7 @@ const [formData, setFormData] = useState({
 
   const handleSubmit = async () => {
   const token = localStorage.getItem('token');
-  if (!token) {
+  if (!token || !LoggedIn) {
     alert("Please log in first!");
     return;
   }
@@ -47,22 +99,65 @@ const [formData, setFormData] = useState({
     return;
   }
 
-  const payload = {
-    ...formData,
-    Date: new Date(formData.Date).toISOString(),
-    location: {
-      lat: Number(formData.location.lat) || 0,
-      lng: Number(formData.location.lng) || 0,
+const payload = {
+  bookingId: formData.bookingId,
+  IdWorker: formData.IdWorker,
+  TempPhoneCustomer: formData.TempPhoneCustomer,
+  TempPhoneWorker: formData.TempPhoneWorker,
+  address: formData.address,
+  WorkName: "Jhadu Pocha",
+  MonthlyOrOneTime: formData.MonthlyOrOneTime,
+  Months: Number(formData.Months) || 1,
+  WhichPlan: formData.WhichPlan,
+  Date: new Date(formData.Date).toISOString(),
+  services: [
+    {
+      WorkName: "Jhadu Pocha",
+      NoOfRooms: formData.NoOfRooms,
+      NoOfKitchen: formData.NoOfKitchen,
+      HallSize: formData.HallSize,
+      JhaduTimeSlot: formData.TimeSlot,
+      // ✅ Always include, fallback if not custom
+      JhaduFrequency:
+        formData.WhichPlan === "Custom"
+          ? formData.JhaduFrequency || "Alternate"
+          : formData.WhichPlan === "Premium"
+          ? "Daily"
+          : "Alternate",
     },
-  };
+    formData.NoOfToilets > 0 && {
+      WorkName: "Toilet Cleaning",
+      NoOfToilets: formData.NoOfToilets,
+      FrequencyPerWeek:
+        formData.WhichPlan === "Custom"
+          ? formData.FrequencyPerWeek || "Twice"
+          : "Twice", // default for Standard & Premium
+    },
+    formData.AmountOfBartan > 0 && {
+      WorkName: "Bartan Service",
+      AmountOfBartan: formData.AmountOfBartan,
+      FrequencyPerDay:
+        formData.WhichPlan === "Custom"
+          ? formData.FrequencyPerDay || "Once"
+          : formData.WhichPlan === "Premium"
+          ? "Twice"
+          : "Once",
+    },
+  ].filter(Boolean),
+};
+
+
+
 
   console.log("Submitting payload:", payload); // 👈 debug
 
   try {
+   
     setSubmitting(true);
     const res = await axios.post(`${API_BASE}/api/user/book`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  headers: { Authorization: `Bearer ${token}` },
+  });
+
     if (res.status === 201) {
       alert("Booking created successfully!");
       navigate("/bookings");
@@ -119,6 +214,20 @@ const [formData, setFormData] = useState({
           One Time
         </button>
       </div>
+{/* Duration */}
+{formData.MonthlyOrOneTime === "Monthly" && (
+  <div className="mb-6">
+    <p className="font-semibold">Duration</p>
+    <select
+      value={formData.Months}
+      onChange={(e) => handleChange("Months", +e.target.value)}
+      className="bg-gray-100 p-2 rounded-md"
+    >
+      <option value={1}>1 Month</option>
+      <option value={3}>3 Months</option>
+    </select>
+  </div>
+)}
 
       {/* Room, Kitchen, Hall */}
       <div className="grid md:grid-cols-3 gap-6 mb-6">
@@ -232,53 +341,135 @@ const [formData, setFormData] = useState({
       </div>
 
       {/* Plans */}
-      <div className="grid md:grid-cols-3 gap-4 mt-8">
-        {[
-          {
-            name: "Standard",
-            details: [
-              "Jhadu pocha: Alternate day",
-              "Toilet: Twice a week",
-              "Bartan: Daily once",
-            ],
-          },
-          {
-            name: "Premium",
-            details: [
-              "Jhadu pocha: Daily",
-              "Toilet: Twice a week",
-              "Bartan: Daily twice",
-            ],
-          },
-          {
-            name: "Custom",
-            details: [
-              "Jhadu pocha: Flexible",
-              "Toilet: Flexible",
-              "Bartan: Flexible",
-            ],
-          },
-        ].map((plan) => (
-          <button
-            key={plan.name}
-            type="button"
-            className={`p-4 rounded-lg text-left ${
-              formData.WhichPlan === plan.name
-                ? "bg-purple-200"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-            onClick={() => handleChange("WhichPlan", plan.name)}
-          >
-            <h1 className="font-bold mb-2">{plan.name} Plan</h1>
-            <ul className="list-disc list-inside">
-              {plan.details.map((d, idx) => (
-                <li key={idx}>{d}</li>
-              ))}
-            </ul>
-          </button>
+<div className="grid md:grid-cols-3 gap-4 mt-8">
+  {[
+    {
+      name: "Standard",
+      details: [
+        "Jhadu pocha: Alternate day",
+        ToiletActive && "Toilet: Twice a week",
+        BartanActive && "Bartan: Daily once",
+      ].filter(Boolean), // remove false entries
+    },
+    {
+      name: "Premium",
+      details: [
+        "Jhadu pocha: Daily",
+        ToiletActive && "Toilet: Twice a week",
+        BartanActive && "Bartan: Daily twice",
+      ].filter(Boolean),
+    },
+    {
+      name: "Custom",
+      details: [
+        "Jhadu pocha: Flexible",
+        ToiletActive && "Toilet: Flexible",
+        BartanActive && "Bartan: Flexible",
+      ].filter(Boolean),
+    },
+  ].map((plan) => (
+    <button
+      key={plan.name}
+      type="button"
+      className={`p-4 rounded-lg text-left ${
+        formData.WhichPlan === plan.name
+          ? "bg-purple-200"
+          : "bg-gray-100 hover:bg-gray-200"
+      }`}
+      onClick={() => handleChange("WhichPlan", plan.name)}
+    >
+      <h1 className="font-bold mb-2">{plan.name} Plan</h1>
+      <ul className="list-disc list-inside">
+        {plan.details.map((d, idx) => (
+          <li key={idx}>{d}</li>
         ))}
-      </div>
+      </ul>
+    </button>
+  ))}
+</div>
 
+{/* Custom quick controls: shown only when Monthly + Custom */}
+{formData.MonthlyOrOneTime === "Monthly" && formData.WhichPlan === "Custom" && (
+  <div className="border rounded-lg p-4 mb-6 bg-gray-50">
+    <p className="font-semibold mb-3">Customize Frequencies</p>
+
+    {/* Jhadu quick row */}
+    {JhaduPochaActive && (
+      <div className="flex items-center justify-between gap-3 py-2">
+        <div className="font-medium">Jhadu Pocha</div>
+        <div className="flex gap-2">
+          {["Daily", "Alternate day"].map((val) => (
+            <button
+              key={val}
+              type="button"
+              className={`px-3 py-1 rounded-lg ${
+                formData.JhaduFrequency === val
+                  ? "bg-purple-300"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+              onClick={() => handleChange("JhaduFrequency", val)}
+            >
+              {val}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Toilet quick row */}
+    {ToiletActive && (
+      <div className="flex items-center justify-between gap-3 py-2 border-t">
+        <div className="font-medium">Toilet Cleaning</div>
+        <div className="flex gap-2">
+          {["Twice a week", "Thrice a week"].map((val) => (
+            <button
+              key={val}
+              type="button"
+              className={`px-3 py-1 rounded-lg ${
+                formData.FrequencyPerWeek === val
+                  ? "bg-purple-300"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+              onClick={() => handleChange("FrequencyPerWeek", val)}
+            >
+              {val} 
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Bartan quick row */}
+    {BartanActive && (
+      <div className="flex items-center justify-between gap-3 py-2 border-t">
+        <div className="font-medium">Bartan Cleaning</div>
+        <div className="flex gap-2">
+          {["Once a day", "Twice a day"].map((val) => (
+            <button
+              key={val}
+              type="button"
+              className={`px-3 py-1 rounded-lg ${
+                formData.FrequencyPerDay === val
+                  ? "bg-purple-300"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+              onClick={() =>
+                handleChange("FrequencyPerDay", val)
+              }
+            >
+              {val} 
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
+{/* Show Estimated Price */}
+      <p className="mt-4 font-semibold text-purple-700">
+        Estimated Price: ₹{estimatedPrice}
+      </p>
       {/* Buttons */}
       <div className="flex gap-4 mt-6">
         <button

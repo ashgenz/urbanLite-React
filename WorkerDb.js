@@ -1,121 +1,136 @@
-import dotenv from "dotenv";
-dotenv.config();
+// server.js
 import express from "express";
 import mongoose from "mongoose";
-import cors from "cors";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import bodyParser from "body-parser";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(bodyParser.json());
+
+import cors from "cors";
+
+
+// Enable CORS for your frontend origin
+app.use(cors({
+  origin: "http://localhost:5173",   // allow only your frontend
+  methods: ["GET", "POST", "PUT", "DELETE"], // allowed HTTP methods
+  credentials: true
+}));
+
 app.use(express.json());
 
-const JWT_KEY = process.env.JWT_KEY;
-const MONGO_URI = process.env.MONGO_URI_WORKER;
 
-// ------------------------
-// MongoDB Connection
-// ------------------------
-mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ Connected to MongoDB Atlas"))
-  .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err.message);
-    process.exit(1);
-  });
 
-// ------------------------
-// Worker Schema & Model
-// ------------------------
-const WorkerSchema = new mongoose.Schema({
+// ------------------ MongoDB Connection ------------------
+mongoose.connect("mongodb+srv://ashishteckfile:Ashish%231%23ash@wokerusers.g9ygfsx.mongodb.net/user?retryWrites=true&w=majority&appName=wokerUsers", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
+db.once("open", () => console.log("✅ MongoDB connected"));
+
+// ------------------ Worker Schema ------------------
+const workerSchema = new mongoose.Schema({
+  phone: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   name: { type: String, required: true },
-  Phone: { type: String, unique: true, required: true },
-  location: {
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true },
+  location: { type: String, required: true },
+  gender: { type: String, required: true },
+  skills: { type: [String], required: true },
+
+  // 🔹 Wallet
+  wallet: {
+    balance: { type: Number, default: 0 },
+    currency: { type: String, default: "INR" },
+    minRequired: { type: Number, default: 100 }, // must maintain min
+    lastUpdated: { type: Date, default: Date.now },
+    transactions: [
+      {
+        type: { type: String, enum: ["credit", "debit"], required: true },
+        amount: { type: Number, required: true },
+        description: { type: String, default: "" },
+        date: { type: Date, default: Date.now },
+      },
+    ],
   },
-  Password: { type: String, required: true },
-  GovId: { type: String },
-  SkilledIn: { type: [String], default: [] }, // array of strings
 });
 
-const Worker = mongoose.model("Worker", WorkerSchema);
 
-// ------------------------
-// Routes
-// ------------------------
+const Worker = mongoose.model("Worker", workerSchema);
 
-// Signup
-app.post("/api/worker/signin", async (req, res) => {
+// ------------------ Routes ------------------
+
+// Worker Registration
+app.post("/workers/register", async (req, res) => {
   try {
-    const { Name, Phone, location, Password, GovId, SkilledIn } = req.body;
+    const { phone, password, name, location, gender, skills } = req.body;
 
-    if (!Name || !Phone || !location?.lat || !location?.lng || !Password) {
-      return res.status(400).json({ message: "All required fields must be filled" });
-    }
-
-    const existingWorker = await Worker.findOne({ Phone });
+    // check if phone already exists
+    const existingWorker = await Worker.findOne({ phone });
     if (existingWorker) {
-      return res.status(409).json({ message: "Phone already registered" });
+      return res.status(400).json({ error: "Worker with this phone already exists" });
     }
-
-    const hashedPassword = await bcrypt.hash(Password, 10);
 
     const worker = new Worker({
-      name: Name,
-      Phone,
+      phone,
+      password,
+      name,
       location,
-      Password: hashedPassword,
-      GovId,
-      SkilledIn: SkilledIn || [],
+      gender,
+      skills,
     });
 
     await worker.save();
-    res.status(201).json({ message: "Worker registered successfully" });
+    res.status(201).json({ message: "Worker registered successfully", worker });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Login
-app.post("/api/worker/login", async (req, res) => {
+// Worker Login
+import jwt from "jsonwebtoken";
+const JWT_KEY = process.env.JWT_KEY;
+app.post("/workers/login", async (req, res) => {
   try {
-    const { Phone, Password } = req.body;
+    const { phone, password } = req.body;
 
-    if (!Phone || !Password) {
-      return res.status(400).json({ message: "Phone and Password are required" });
+    const worker = await Worker.findOne({ phone });
+    if (!worker) {
+      return res.status(400).json({ error: "Worker not found" });
     }
 
-    const worker = await Worker.findOne({ Phone });
-    if (!worker) return res.status(401).json({ message: "User not found" });
+    if (worker.password !== password) {
+      return res.status(400).json({ error: "Invalid password" });
+    }
+    console.log(worker)
+    console.log(JWT_KEY)
+    // Generate JWT
+    const token = jwt.sign({ id: worker._id },JWT_KEY, { expiresIn: "1d" });
 
-    const isMatch = await bcrypt.compare(Password, worker.Password);
-    if (!isMatch) return res.status(403).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign({ id: worker._id }, JWT_KEY, { expiresIn: "1h" });
-    res.json({ token });
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      worker: {
+        id: worker._id,
+        name: worker.name,
+        phone: worker.phone,
+        location: worker.location,
+        gender: worker.gender,
+        skills: worker.skills,
+      },
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Verify JWT
-app.get("/api/worker/verify", verifyToken, (req, res) => {
-  res.json({ success: true, message: "Token is valid", user: req.user });
-});
-
-// Middleware to verify JWT
+// Middleware
 function verifyToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader?.split(" ")[1];
-
-  if (!token) return res.status(401).json({ message: "Access denied, no token provided" });
-
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "No token" });
   jwt.verify(token, JWT_KEY, (err, decoded) => {
     if (err) return res.status(403).json({ message: "Invalid token" });
     req.user = decoded;
@@ -123,8 +138,38 @@ function verifyToken(req, res, next) {
   });
 }
 
-// ------------------------
-// Start server
-// ------------------------
-const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+// Get balance
+app.get("/api/worker/balance", verifyToken, async (req, res) => {
+  const worker = await Worker.findById(req.user.id);
+  if (!worker) return res.status(404).json({ message: "Worker not found" });
+
+  const { balance, currency, lastUpdated } = worker.wallet;
+  res.json({ workerId: worker._id, balance, currency, lastUpdated });
+});
+
+// Top-up balance
+app.post("/api/worker/wallet/topup", verifyToken, async (req, res) => {
+  const { amount, description } = req.body;
+  if (amount <= 0) return res.status(400).json({ message: "Invalid amount" });
+
+  const worker = await Worker.findById(req.user.id);
+  worker.wallet.balance += amount;
+  worker.wallet.transactions.push({ type: "credit", amount, description });
+  worker.wallet.lastUpdated = new Date();
+
+  await worker.save();
+  res.json({ success: true, balance: worker.wallet.balance });
+});
+
+// Transaction history
+app.get("/api/worker/wallet/transactions", verifyToken, async (req, res) => {
+  const worker = await Worker.findById(req.user.id);
+  if (!worker) return res.status(404).json({ message: "Worker not found" });
+
+  res.json(worker.wallet.transactions);
+});
+
+
+// ------------------ Start Server ------------------
+const PORT = 8000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
