@@ -28,11 +28,15 @@ const [formData, setFormData] = useState({
 const JhaduPochaActive = true; // always active in this form
 const ToiletActive = formData.NoOfToilets > 0;
 const BartanActive = formData.AmountOfBartan > 0;
+// JhaduPocha.jsx
+
+// ... (imports and state)
 
 const estimatedPrice = useMemo(() => {
-  const unit = UNIT_PRICES[formData.MonthlyOrOneTime];
+  const unit = UNIT_PRICES[formData.MonthlyOrOneTime] || UNIT_PRICES.Monthly; // Safely access unit prices
+  console.log(formData.MonthlyOrOneTime);
   const days =
-    formData.MonthlyOrOneTime === "Monthly" ? 30 * formData.Months : 1;
+    formData.MonthlyOrOneTime === "Monthly" ? 30 * (formData.Months || 1) : 1; // Default Months to 1
 
   // --- Apply defaults from plan ---
   let jhaduFrequency =
@@ -40,7 +44,7 @@ const estimatedPrice = useMemo(() => {
       ? "Daily"
       : formData.WhichPlan === "Standard"
       ? "Alternate day"
-      : formData.JhaduFrequency;
+      : formData.JhaduFrequency; // Use the value from state if 'Custom'
 
   let toiletFreq =
     formData.WhichPlan === "Custom"
@@ -52,7 +56,7 @@ const estimatedPrice = useMemo(() => {
       ? "Twice a day"
       : formData.WhichPlan === "Standard"
       ? "Once a day"
-      : formData.FrequencyPerDay;
+      : formData.FrequencyPerDay; // Use the value from state if 'Custom'
 
   // ✅ Jhadu factor
   let jhaduFactor = jhaduFrequency === "Alternate day" ? 0.5 : 1;
@@ -63,41 +67,59 @@ const estimatedPrice = useMemo(() => {
   if (toiletFreq === "Thrice a week") toiletFactor = 3 / 7;
 
   // ✅ Bartan factor
-  let bartanFactor = bartanFreq === "Twice a day" ? 2 : 1;
+  // Corrected for consistency: using "Twice a day" for 2
+  let bartanFactor = bartanFreq === "Twice a day" ? 2 : 1; 
 
-  // ✅ Final price calculation
-  const rawPrice =
-    Math.round(
-      (formData.NoOfRooms * unit.room +
-        formData.NoOfKitchen * unit.kitchen +
-        formData.HallSize * unit.hall) *
-        jhaduFactor +
-        formData.NoOfToilets * unit.toilet * toiletFactor +
-        formData.AmountOfBartan * unit.bartan * bartanFactor
-    ) * days;
+  let total = 0;
 
-  return rawPrice;
+  // 1. Jhadu Pocha Calculation
+  total += 
+    ((formData.NoOfRooms || 0) * unit.room +
+     (formData.NoOfKitchen || 0) * unit.kitchen +
+     (formData.HallSize || 0) * unit.hall) *
+     jhaduFactor *
+     days; // 🛑 FIX: Multiply by days before final round
+
+  // 2. Toilet Cleaning Calculation
+  total += 
+    (formData.NoOfToilets || 0) * unit.toilet * toiletFactor * days; // 🛑 FIX: Multiply by days before final round
+
+  // 3. Bartan Service Calculation
+  total += 
+    (formData.AmountOfBartan || 0) * unit.bartan * bartanFactor * days; // 🛑 FIX: Multiply by days before final round
+
+  // ✅ Final price calculation: only one Math.round at the end.
+  return Math.round(total);
 }, [formData]);
 
 
+// ... (rest of JhaduPocha.jsx)
+// NOTE: I also corrected the payload frequency fallback strings for the custom plan in handleSubmit 
+// to ensure consistency with the strings used in the calculation logic ("Alternate day", "Twice a week", "Once a day")
 
-  const [submitting, setSubmitting] = useState(false);
+// ... (inside handleSubmit)
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+// ... (before payload creation)
 
-  const handleSubmit = async () => {
-  const token = localStorage.getItem('token');
-  if (!token || !LoggedIn) {
-    alert("Please log in first!");
-    return;
-  }
+// Calculate correct frequency strings for the payload
+  const finalJhaduFrequency =
+    formData.WhichPlan === "Custom"
+      ? formData.JhaduFrequency || "Alternate day" // Use full string
+      : formData.WhichPlan === "Premium"
+      ? "Daily"
+      : "Alternate day"; // Standard
 
-  if (!formData.TimeSlot) {
-    alert("Please select a time slot!");
-    return;
-  }
+  const finalToiletFrequency =
+    formData.WhichPlan === "Custom"
+      ? formData.FrequencyPerWeek || "Twice a week" // Use full string
+      : "Twice a week"; // Standard & Premium
+
+  const finalBartanFrequency =
+    formData.WhichPlan === "Custom"
+      ? formData.FrequencyPerDay || "Once a day" // Use full string
+      : formData.WhichPlan === "Premium"
+      ? "Twice a day" // Use full string
+      : "Once a day"; // Standard
 
 const payload = {
   bookingId: formData.bookingId,
@@ -113,50 +135,123 @@ const payload = {
   services: [
     {
       WorkName: "Jhadu Pocha",
-      NoOfRooms: formData.NoOfRooms,
-      NoOfKitchen: formData.NoOfKitchen,
-      HallSize: formData.HallSize,
+      NoOfRooms: formData.NoOfRooms || 0, // Default to 0
+      NoOfKitchen: formData.NoOfKitchen || 0, // Default to 0
+      HallSize: formData.HallSize || 0, // Default to 0
       JhaduTimeSlot: formData.TimeSlot,
-      // ✅ Always include, fallback if not custom
-      JhaduFrequency:
-        formData.WhichPlan === "Custom"
-          ? formData.JhaduFrequency || "Alternate"
-          : formData.WhichPlan === "Premium"
-          ? "Daily"
-          : "Alternate",
+      // ✅ Use calculated final string
+      JhaduFrequency: finalJhaduFrequency,
     },
     formData.NoOfToilets > 0 && {
       WorkName: "Toilet Cleaning",
-      NoOfToilets: formData.NoOfToilets,
-      FrequencyPerWeek:
-        formData.WhichPlan === "Custom"
-          ? formData.FrequencyPerWeek || "Twice"
-          : "Twice", // default for Standard & Premium
+      NoOfToilets: formData.NoOfToilets || 0, // Default to 0
+      // ✅ Use calculated final string
+      FrequencyPerWeek: finalToiletFrequency,
     },
     formData.AmountOfBartan > 0 && {
       WorkName: "Bartan Service",
-      AmountOfBartan: formData.AmountOfBartan,
-      FrequencyPerDay:
-        formData.WhichPlan === "Custom"
-          ? formData.FrequencyPerDay || "Once"
-          : formData.WhichPlan === "Premium"
-          ? "Twice"
-          : "Once",
+      AmountOfBartan: formData.AmountOfBartan || 0, // Default to 0
+      // ✅ Use calculated final string
+      FrequencyPerDay: finalBartanFrequency,
     },
   ].filter(Boolean),
 };
 
+// ... (rest of handleSubmit)
 
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+// JhaduPocha.jsx
+
+// ... (imports and state)
+
+// NOTE: The 'estimatedPrice' useMemo logic remains correct from the last step.
+
+// ... (handleChange function)
+
+const handleSubmit = async () => {
+  const token = localStorage.getItem('token');
+  if (!token || !LoggedIn) {
+    alert("Please log in first!");
+    return;
+  }
+
+  if (!formData.TimeSlot) {
+    alert("Please select a time slot!");
+    return;
+  }
+
+  // --- Calculate correct frequency strings for the payload ---
+  const finalJhaduFrequency =
+    formData.WhichPlan === "Custom"
+      ? formData.JhaduFrequency || "Alternate day" // Use full string
+      : formData.WhichPlan === "Premium"
+      ? "Daily"
+      : "Alternate day"; // Standard default
+
+  const finalToiletFrequency =
+    formData.WhichPlan === "Custom"
+      ? formData.FrequencyPerWeek || "Twice a week" // Use full string
+      : "Twice a week"; // Standard & Premium default
+
+  const finalBartanFrequency =
+    formData.WhichPlan === "Custom"
+      ? formData.FrequencyPerDay || "Once a day" // Use full string
+      : formData.WhichPlan === "Premium"
+      ? "Twice a day" // Use full string
+      : "Once a day"; // Standard default
+
+
+  const payload = {
+    bookingId: formData.bookingId,
+    IdWorker: formData.IdWorker,
+    TempPhoneCustomer: formData.TempPhoneCustomer,
+    TempPhoneWorker: formData.TempPhoneWorker,
+    address: formData.address,
+    WorkName: "Jhadu Pocha",
+    MonthlyOrOneTime: formData.MonthlyOrOneTime,
+    Months: Number(formData.Months) || 1,
+    WhichPlan: formData.WhichPlan,
+    Date: new Date(formData.Date).toISOString(),
+    services: [
+      {
+        WorkName: "Jhadu Pocha",
+        NoOfRooms: formData.NoOfRooms || 0,
+        NoOfKitchen: formData.NoOfKitchen || 0,
+        HallSize: formData.HallSize || 0,
+        JhaduTimeSlot: formData.TimeSlot,
+        // ✅ Use calculated final string
+        JhaduFrequency: finalJhaduFrequency,
+      },
+      formData.NoOfToilets > 0 && {
+        WorkName: "Toilet Cleaning",
+        NoOfToilets: formData.NoOfToilets || 0,
+        // ✅ Use calculated final string
+        FrequencyPerWeek: finalToiletFrequency,
+      },
+      formData.AmountOfBartan > 0 && {
+        WorkName: "Bartan Service",
+        AmountOfBartan: formData.AmountOfBartan || 0,
+        // ✅ Use calculated final string
+        FrequencyPerDay: finalBartanFrequency,
+      },
+    ].filter(Boolean),
+  };
 
 
   console.log("Submitting payload:", payload); // 👈 debug
 
   try {
-   
+    
     setSubmitting(true);
     const res = await axios.post(`${API_BASE}/api/user/book`, payload, {
-  headers: { Authorization: `Bearer ${token}` },
-  });
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (res.status === 201) {
       alert("Booking created successfully!");
@@ -169,6 +264,8 @@ const payload = {
     setSubmitting(false);
   }
 };
+
+// ... (rest of JhaduPocha.jsx including the JSX return)
 
 
   return (
@@ -205,11 +302,11 @@ const payload = {
         <button
           type="button"
           className={`px-4 py-1 rounded-3xl ${
-            formData.MonthlyOrOneTime === "One Time"
+            formData.MonthlyOrOneTime === "OneTime"
               ? "bg-white"
               : "hover:bg-gray-200"
           }`}
-          onClick={() => handleChange("MonthlyOrOneTime", "One Time")}
+          onClick={() => handleChange("MonthlyOrOneTime", "OneTime")}
         >
           One Time
         </button>

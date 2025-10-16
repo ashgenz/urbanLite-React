@@ -99,5 +99,5 @@ function verifyToken(req,res,next){
 // Start server
 const PORT = process.env.PORTCUSTOMER;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT} LoginsBackend`);
 });

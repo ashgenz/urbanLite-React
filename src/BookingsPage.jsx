@@ -89,6 +89,7 @@ export default function BookingsPage() {
     <p><strong>Your Phone:</strong> {booking.TempPhoneCustomer}</p>
     <p><strong>Date:</strong> {new Date(booking.Date).toLocaleDateString()}</p>
     <p><strong>Plan:</strong> {booking.WhichPlan}</p>
+    <p><strong>Plan:</strong> {booking.WorkerName}</p>
 
     {/* Branch based on All-Rounder vs Single Service */}
     {booking.services && booking.services.length > 0 ? (
@@ -105,7 +106,6 @@ export default function BookingsPage() {
               {srv.NoOfRooms ? ` • Rooms: ${srv.NoOfRooms}` : ""}
               {srv.NoOfKitchen ? ` • Kitchens: ${srv.NoOfKitchen}` : ""}
               {srv.NoOfToilets ? ` • Toilets: ${srv.NoOfToilets}` : ""}
-              {srv.AmountOfBartan ? ` • Utensils: ${srv.AmountOfBartan}` : ""}
               {srv.AmountOfBartan ? ` • Utensils: ${srv.AmountOfBartan}` : ""}
             </li>
           ))}
@@ -132,6 +132,34 @@ export default function BookingsPage() {
         )}
       </div>
     )}
+    {/* Payment Section */}
+<div className="mt-2">
+  <p><strong>Payment Status:</strong> {booking.payment?.status || "pending"}</p>
+  <p><strong>Payment Method:</strong> {booking.payment?.method || "N/A"}</p>
+
+  {booking.payment?.status === "pending" && (
+    <Button
+      className="mt-2 bg-green-600 text-white"
+      onClick={async () => {
+        try {
+          const res = await axios.post(
+            `http://localhost:5000/api/user/bookings/${booking._id}/pay`,
+            { method: "to_platform" }, // customer paid to platform
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          alert("Payment successful ✅");
+          window.location.reload();
+        } catch (err) {
+          console.error(err);
+          alert("Payment failed ❌");
+        }
+      }}
+    >
+      Pay Now
+    </Button>
+  )}
+</div>
+
   </CardContent>
 </Card>
 
