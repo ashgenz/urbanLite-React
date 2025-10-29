@@ -14,7 +14,7 @@ export default function Login({ LoggedIn, setLoggedIn }){
         if (!Password) return alert("✍️ Please create a Password");
     
       try {
-        const response = await axios.post("http://localhost:4000/api/user/login/", {
+        const response = await axios.post("https://urbanlite-backends-vrv6.onrender.com/api/user/login/", {
           Phone: Phone.trim(),
           Password:Password.trim()
         });
