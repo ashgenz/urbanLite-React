@@ -2,174 +2,331 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, CardContent } from "./components/ui/card";
 import { Button } from "./components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calendar, MapPin, DollarSign, User, Phone, CheckCircle, XCircle } from "lucide-react";
+import { Info } from "lucide-react";
+// import { LoggedIn } from "./Nav";
 
-export default function BookingsPage() {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  const token = localStorage.getItem('token');
+/**
+ * @typedef {object} Service
+ * @property {string} _id
+ * @property {string} WorkName
+ * @property {string} [FrequencyPerDay]
+ * @property {string} [TimeSlot1]
+ * @property {string} [TimeSlot2]
+ * @property {number} [NoOfPeople]
+ * @property {boolean} [IncludeNaashta]
+ * @property {boolean} [IsEnabled]
+ * @property {string} [BartanMode]
+ * @property {number} [AmountOfBartan]
+ * @property {number} [NoOfRooms]
+ * @property {number} [NoOfKitchen]
+ * @property {number} [HallSize]
+ * @property {string} [JhaduFrequency]
+ * @property {string} [JhaduTimeSlot]
+ * @property {number} [NoOfToilets]
+ * @property {string} [FrequencyPerWeek]
+ */
 
-  useEffect(() => {
+/**
+ * @typedef {object} Booking
+ * @property {string} _id
+ * @property {string} WorkName
+ * @property {string} address
+ * @property {string} Date
+ * @property {string} status
+ * @property {string} IdCustomer
+ * @property {string} TempPhoneCustomer
+ * @property {string} TempPhoneWorker
+ * @property {string} WhichPlan
+ * @property {string} MonthlyOrOneTime
+ * @property {Service[]} [services]
+ * @property {number} EstimatedPrice
+ * @property {string} [IdWorker]
+ * @property {string} [WorkerName]
+ * @property {object} [payment]
+ * @property {('pending'|'paid'|'failed')} [payment.status]
+ * @property {('online'|'cash')} [payment.mode]
+ */
+
+
+export default function BookingsPage({LoggedIn}) {
+
+const handleCancelBooking = async (bookingId) => {
+  const confirmCancel = window.confirm(
+    "Are you sure you want to cancel this booking?"
+  );
+  if (!confirmCancel) return;
+
+  const confirmText = window.prompt(
+    "Type 'CONFIRM CANCEL' to finalize this cancellation:"
+  );
+
+  if (confirmText !== "CONFIRM CANCEL") {
+    alert("❌ Cancellation aborted. You must type 'CONFIRM CANCEL' exactly.");
+    return;
+  }
+
+  try {
+    const res = await axios.patch(
+      `http://localhost:5000/api/user/bookings/${bookingId}/cancel`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    alert("✅ Booking cancelled successfully.");
+    fetchBookings();
+  } catch (err) {
+    console.error("Cancel error:", err);
+    alert(err.response?.data?.message || "Failed to cancel booking ❌");
+  }
+};
+
+
+
+
+    // 🚨 Changed to standard JavaScript state initialization
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    // NOTE: Access localStorage safely for client-side rendering
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+
     const fetchBookings = async () => {
-      console.log("Fetching bookings with token:", token);
-      if (!token) {
-        setError("No auth token found. Please log in.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await axios.get("http://localhost:5000/api/user/bookings", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("Bookings response:", response.data);
-        setBookings(response.data);
-      } catch (err) {
-        console.error("❌ Failed to fetch bookings:", err);
-
-        if (err.response) {
-          console.error("Response data:", err.response.data);
-          console.error("Response status:", err.response.status);
-        } else if (err.request) {
-          console.error("No response received:", err.request);
-        } else {
-          console.error("Error message:", err.message);
+        if (!LoggedIn) {
+            setError("Please log in first");
+            setBookings([]);
+            setLoading(false);
+            return;
         }
 
-        setError("Failed to fetch bookings");
-      } finally {
-        setLoading(false);
-      }
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await axios.get("http://localhost:5000/api/user/bookings", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setBookings(response.data);
+        } catch (err) {
+            console.error("❌ Failed to fetch bookings:", err);
+            // 🚨 Removed explicit ': any' type cast
+            setError(
+                err.response?.data?.message || "Server error. Could not fetch bookings."
+            );
+            setBookings([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    fetchBookings();
-  }, [token]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="animate-spin w-10 h-10 text-gray-500" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <p className="text-red-500 text-center mt-20 mb-20">{error}</p>;
-  }
-
-  return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">My Bookings</h1>
-      {bookings.length === 0 ? (
-        <p className="text-gray-600">No bookings found.</p>
-      ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {bookings.map((booking) => (
-<Card key={booking._id} className="shadow-lg rounded-2xl relative">
-  {/* Status Flag */}
-  <div
-    className={`absolute top-2 right-2 px-3 py-1 text-sm font-semibold rounded-lg text-white ${
-      !booking.IdWorker || booking.IdWorker === "demoWorker"
-        ? "bg-red-500"
-        : "bg-green-500"
-    }`}
-  >
-    {(!booking.IdWorker || booking.IdWorker === "demoWorker")
-      ? "Not Accepted"
-      : "Accepted"}
-  </div>
-
-  <CardContent className="p-4 space-y-2">
-    <h2 className="text-lg font-semibold">{booking.WorkName}</h2>
-    <p><strong>Worker ID:</strong> {booking.IdWorker || "N/A"}</p>
-    <p><strong>Worker Mobile:</strong> {booking.TempPhoneWorker}</p>
-    <p><strong>Your Phone:</strong> {booking.TempPhoneCustomer}</p>
-    <p><strong>Date:</strong> {new Date(booking.Date).toLocaleDateString()}</p>
-    <p><strong>Plan:</strong> {booking.WhichPlan}</p>
-    <p><strong>Plan:</strong> {booking.WorkerName}</p>
-
-    {/* Branch based on All-Rounder vs Single Service */}
-    {booking.services && booking.services.length > 0 ? (
-      <div className="mt-3">
-        <p className="font-semibold">Services Included:</p>
-        <ul className="list-disc list-inside text-sm">
-          {booking.services.map((srv) => (
-            <li key={srv._id}>
-              <strong>{srv.WorkName}</strong>
-              {srv.FrequencyPerDay && ` • ${srv.FrequencyPerDay}`}
-              {srv.NoOfPeople && ` • ${srv.NoOfPeople}`}
-              {srv.JhaduTimeSlot && ` • Slot: ${srv.JhaduTimeSlot}`}
-              {srv.FrequencyPerWeek && ` • ${srv.FrequencyPerWeek}`}
-              {srv.NoOfRooms ? ` • Rooms: ${srv.NoOfRooms}` : ""}
-              {srv.NoOfKitchen ? ` • Kitchens: ${srv.NoOfKitchen}` : ""}
-              {srv.NoOfToilets ? ` • Toilets: ${srv.NoOfToilets}` : ""}
-              {srv.AmountOfBartan ? ` • Utensils: ${srv.AmountOfBartan}` : ""}
-            </li>
-          ))}
-        </ul>
-        <p><strong>Estimated Price:</strong> ₹{booking.EstimatedPrice}</p>
-      </div>
-    ) : (
-      <div className="mt-3">
-        {/* Single service booking */}
-        {booking.NoOfRooms !== undefined && (
-          <p><strong>Rooms:</strong> {booking.NoOfRooms}</p>
-        )}
-        {booking.NoOfKitchen !== undefined && (
-          <p><strong>Kitchens:</strong> {booking.NoOfKitchen}</p>
-        )}
-        {booking.NoOfToilets !== undefined && (
-          <p><strong>Toilets:</strong> {booking.NoOfToilets}</p>
-        )}
-        {booking.JhaduTimeSlot && (
-          <p><strong>Time Slot:</strong> {booking.JhaduTimeSlot}</p>
-        )}
-        {booking.FrequencyPerWeek && (
-          <p><strong>Frequency:</strong> {booking.FrequencyPerWeek}</p>
-        )}
-      </div>
-    )}
-    {/* Payment Section */}
-<div className="mt-2">
-  <p><strong>Payment Status:</strong> {booking.payment?.status || "pending"}</p>
-  <p><strong>Payment Method:</strong> {booking.payment?.method || "N/A"}</p>
-
-  {booking.payment?.status === "pending" && (
-    <Button
-      className="mt-2 bg-green-600 text-white"
-      onClick={async () => {
-        try {
-          const res = await axios.post(
-            `http://localhost:5000/api/user/bookings/${booking._id}/pay`,
-            { method: "to_platform" }, // customer paid to platform
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          alert("Payment successful ✅");
-          window.location.reload();
-        } catch (err) {
-          console.error(err);
-          alert("Payment failed ❌");
+    useEffect(() => {
+        fetchBookings();
+        if (token) {
+            const interval = setInterval(fetchBookings, 30000); // auto-refresh every 30s
+            return () => clearInterval(interval);
         }
-      }}
+    }, [token]);
+
+    if (!token) {
+        return <p className="text-red-500 text-center mt-20">Please log in first.</p>;
+    }
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Loader2 className="animate-spin w-10 h-10 text-gray-500" />
+            </div>
+        );
+    }
+
+    // Split bookings by payment status (using 'paid' as proxy for completed/settled status)
+const ongoingBookings = bookings.filter(
+  (b) => b.status !== "cancelled" && (!b.payment || b.payment.status !== "paid")
+);
+const completedBookings = bookings.filter(
+  (b) => b.status !== "cancelled" && b.payment && b.payment.status === "paid"
+);
+
+const handlePayment = async (bookingId, bookingStatus) => {
+  if (bookingStatus !== "accepted") {
+    alert("Please wait until a worker accepts your booking before paying.");
+    return;
+  }
+
+  try {
+    await axios.post(
+      `http://localhost:5000/api/user/bookings/${bookingId}/pay`,
+      { method: "to_platform" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    alert("Payment successful ✅");
+    fetchBookings();
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Payment failed ❌");
+  }
+};
+
+
+
+    // 🚨 Updated card component with professional styling
+    const renderBookingCard = (booking, isCompleted = false) => {
+        const isAccepted = booking.IdWorker && booking.IdWorker !== "demoWorker";
+        const workerStatusBg = isAccepted ? "bg-green-600" : "bg-red-500";
+        const workerStatusText = isAccepted ? "Accepted" : "Pending/Rejected";
+        const paymentStatus = booking.payment?.status || "pending";
+        const isPaymentPending = paymentStatus === "pending";
+
+        return (
+            <Card
+                key={booking._id}
+                className={`shadow-lg rounded-xl border-t-4 ${isCompleted ? "border-t-gray-400 bg-gray-50" : "border-t-blue-500 bg-white"} transition hover:shadow-xl`}
+            >
+                <CardContent className="p-6 space-y-4">
+                    
+                    {/* Header with Title and Status */}
+                    <div className="flex justify-between items-start border-b pb-3 mb-3">
+  <h2 className="text-2xl font-bold text-gray-800 flex-1">{booking.WorkName}</h2>
+
+  <div className="flex items-center space-x-2">
+    {/* Cancel icon only visible for ongoing bookings */}
+    {!isCompleted && (
+      <Info
+        className="w-5 h-5 text-blue-500 cursor-pointer hover:text-blue-700 transition"
+        onClick={() => handleCancelBooking(booking._id)}
+        title="Cancel this booking"
+      />
+    )}
+
+    <div
+      className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${workerStatusBg}`}
     >
-      Pay Now
-    </Button>
-  )}
+      {workerStatusText}
+    </div>
+  </div>
 </div>
 
-  </CardContent>
-</Card>
 
+                    {/* Main Details Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
+                        <p className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                            <strong>Date:</strong> {new Date(booking.Date).toLocaleDateString()}
+                        </p>
+                        <p className="flex items-center">
+                            <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                            <strong>Price:</strong> <span className="font-semibold text-lg text-green-700 ml-1">₹{booking.EstimatedPrice}</span>
+                        </p>
+                        <p className="flex items-center col-span-2">
+                            <MapPin className="w-4 h-4 mr-2 text-red-500" />
+                            <strong>Address:</strong> {booking.address}
+                        </p>
+                        
+                        <p className="flex items-center">
+                            <User className="w-4 h-4 mr-2 text-gray-500" />
+                            <strong>Worker Name:</strong> {booking.WorkerName || "Searching..."}
+                        </p>
+                        <p className="flex items-center">
+                            <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                            <strong>Worker Phone:</strong> {booking.TempPhoneWorker || "N/A"}
+                        </p>
+                        <p className="flex items-center">
+                            <CheckCircle className="w-4 h-4 mr-2 text-yellow-500" />
+                            <strong>Plan:</strong> {booking.WhichPlan} ({booking.MonthlyOrOneTime})
+                        </p>
+                        <p className="flex items-center">
+                            <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                            <strong>Payment Method:</strong> {booking.payment?.mode || "N/A"}
+                        </p>
+                    </div>
 
-          ))}
+                    {/* Services Section */}
+                    {booking.services && booking.services.length > 0 && (
+                        <div className="mt-4 border-t pt-4">
+                            <p className="font-semibold text-md text-gray-700 mb-2">Services Details:</p>
+                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600">
+                                {booking.services.map((srv) => (
+                                   <li key={srv._id} className="p-2 bg-blue-50/50 rounded-lg border border-blue-100">
+  <span className="font-medium text-blue-700 block">{srv.WorkName}</span>
+
+  {srv.FrequencyPerDay && <span>• {srv.FrequencyPerDay}</span>}
+  {srv.NoOfPeople > 0 && <span> • People: {srv.NoOfPeople}</span>}
+  {srv.JhaduTimeSlot && <span> • Slot: {srv.JhaduTimeSlot}</span>}
+  {srv.FrequencyPerWeek && <span> • {srv.FrequencyPerWeek}</span>}
+  {srv.NoOfRooms > 0 && <span> • Rooms: {srv.NoOfRooms}</span>}
+  {srv.NoOfKitchen > 0 && <span> • Kitchens: {srv.NoOfKitchen}</span>}
+  {srv.HallSize > 0 && <span> • Hall Size: {srv.HallSize}</span>}
+  {srv.NoOfToilets > 0 && <span> • Toilets: {srv.NoOfToilets}</span>}
+  {srv.AmountOfBartan > 0 && <span> • Utensils: {srv.AmountOfBartan}</span>}
+</li>
+
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* Payment/Action Footer */}
+                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                        <p className="text-base font-semibold">
+                            Status: 
+                            <span className={`ml-2 px-2 py-1 rounded-md text-sm font-bold ${paymentStatus === "paid" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                                {paymentStatus.toUpperCase()}
+                            </span>
+                        </p>
+
+                        {!isCompleted && isPaymentPending && (
+                            <Button
+  onClick={() => handlePayment(booking._id, booking.status)}
+>
+  <DollarSign className="w-4 h-4 mr-2" />
+  Pay Now
+</Button>
+
+                        )}
+                        {isCompleted && (
+                             <span className="text-green-600 font-medium flex items-center">
+                                <CheckCircle className="w-4 h-4 mr-1"/> Payment Complete
+                             </span>
+                        )}
+                    </div>
+
+                </CardContent>
+            </Card>
+        );
+    };
+
+    return (
+        <div className="p-6 max-w-4xl mx-auto">
+            <h1 className="text-3xl font-extrabold mb-8 text-gray-800 border-b pb-3">My Service Bookings 📑</h1>
+
+            {error && <p className="text-red-500 text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">{error}</p>}
+            
+            {/* ONGOING BOOKINGS SECTION */}
+            {ongoingBookings.length > 0 && (
+                <div className="mb-10">
+                    <h2 className="text-xl font-bold mb-4 text-blue-700">⏳ Ongoing/Pending Bookings ({ongoingBookings.length})</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {ongoingBookings.map((b) => renderBookingCard(b))}
+                    </div>
+                </div>
+            )}
+
+            {/* COMPLETED BOOKINGS SECTION */}
+            {completedBookings.length > 0 && (
+                <div className="mt-6">
+                    <h2 className="text-xl font-bold mb-4 text-gray-600">✅ Completed Bookings ({completedBookings.length})</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {completedBookings.map((b) => renderBookingCard(b, true))}
+                    </div>
+                </div>
+            )}
+
+            {/* NO BOOKINGS MESSAGE */}
+            {bookings.length === 0 && (
+                <p className="text-gray-500 text-center mt-20 p-6 border border-dashed rounded-lg">You haven't made any bookings yet.</p>
+            )}
         </div>
-      )}
-      <div className="mt-6 flex justify-center">
-        <Button onClick={() => window.location.reload()}>Refresh</Button>
-      </div>
-    </div>
-  );
+    );
 }

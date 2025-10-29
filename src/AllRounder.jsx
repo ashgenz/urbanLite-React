@@ -1,28 +1,28 @@
 import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import { UNIT_PRICES } from "./priceConfig";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const UNIT_PRICES = {
-  Monthly: {
-    meal: 25,     // per meal per person
-    naashta: 15,  // per breakfast per person
-    bartan: 2,    // per utensil
-    room: 10,     // per room cleaning
-    kitchen: 15,  // per kitchen
-    hall: 20,     // per hall unit
-    toilet: 30,   // per toilet per cleaning
-  },
-  "One Time": {
-    meal: 40,
-    naashta: 20,
-    bartan: 5,
-    room: 20,
-    kitchen: 30,
-    hall: 40,
-    toilet: 50,
-  },
-};
+// const UNIT_PRICES = {
+//   Monthly: {
+//     meal: 25,     // per meal per person
+//     naashta: 15,  // per breakfast per person
+//     bartan: 2,    // per utensil
+//     room: 10,     // per room cleaning
+//     kitchen: 15,  // per kitchen
+//     hall: 20,     // per hall unit
+//     toilet: 30,   // per toilet per cleaning
+//   },
+//   "One Time": {
+//     meal: 40,
+//     naashta: 20,
+//     bartan: 5,
+//     room: 20,
+//     kitchen: 30,
+//     hall: 40,
+//     toilet: 50,
+//   },
+// };
 
 export default function AllRounder({LoggedIn, heading }) {
 
@@ -156,11 +156,11 @@ const estimatedPrice = useMemo(() => {
 
   // --- Toilet ---
   if (services.toilet) {
-    let perWeek = 2 / 7; // default Twice a week
-    if (common.WhichPlan === "Premium") perWeek = 3 / 7;
+    let perWeek = 3 / 10; // default Twice a week
+    if (common.WhichPlan === "Premium") perWeek = 13 / 30;
     if (common.WhichPlan === "Custom") {
-      if (toilet.FrequencyPerWeek === "Thrice") perWeek = 3 / 7;
-      if (toilet.FrequencyPerWeek === "Twice") perWeek = 2 / 7;
+      if (toilet.FrequencyPerWeek === "Thrice") perWeek = 13 / 30;
+      if (toilet.FrequencyPerWeek === "Twice") perWeek = 3 / 10;
     }
     total += toilet.NoOfToilets * unit.toilet * perWeek;
   }
@@ -656,7 +656,10 @@ onClick={() => {
           {common.MonthlyOrOneTime === "Monthly" && (
             <div className="mb-4">
               <p className="font-semibold">Frequency (per week)</p>
-              <select value={toilet.FrequencyPerWeek} onChange={(e) => setToilet((s) => ({ ...s, FrequencyPerWeek: e.target.value }))} className="bg-gray-100 p-2 rounded-md">
+              <select value={toilet.FrequencyPerWeek} onChange={(e) => 
+                setToilet((s) => ({ ...s, FrequencyPerWeek: e.target.value }))
+                
+                } className="bg-gray-100 p-2 rounded-md">
                 <option value="Twice">Twice a Week</option>
                 <option value="Thrice">Thrice a Week</option>
               </select>

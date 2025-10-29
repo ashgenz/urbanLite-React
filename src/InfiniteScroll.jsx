@@ -33,7 +33,7 @@ const imagesRow2 = [
 
 const InfiniteScroll = () => {
   return (
-    <div className="mt-[60vw] md:mt-[21vw] h-[73vw] md:h-[25.7vw] w-full bg-[#eaeaea] overflow-hidden ">
+    <div className="mt-[60vw] md:mt-[2vw] h-[73vw] md:h-[25.7vw] w-full bg-[#eaeaea] overflow-hidden ">
       {/* Row 1 - moves left */}
       <div className="flex overflow-hidden relative mt-[5vw] md:mt-[2.2vw]">
         <div className="flex animate-scroll-left-mobile md:animate-scroll-left-desktop">

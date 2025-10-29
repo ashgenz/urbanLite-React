@@ -115,7 +115,52 @@ import WorkerRegister from './WorkerRegister';
 const UrbanLite2 = () => { 
 
 
+// Data for the suggestion cards (Updated with image paths for all)
+  const suggestions = [
+    { name: "Jhadu Pocha", available: true, image: "/JhaduPocha.jpg", to: "/jhadupocha" },
+    { name: "Cook", available: true, image: "/cook.png", to: "/cook" },
+    { name: "Bartan", available: true, image: "/bartan.jpg", to: "/bartan" },
+    { name: "All Rounder", available: true, image: "/allRounder.jpg", to: "/allrounder" },
+    // Using images from the "Coming soon" section for the unavailable services
+    { name: "Chef", available: false, image: "/chef2.jpg" },
+    { name: "Waiter", available: false, image: "/waiter.jpg" },
+    { name: "Repair", available: false, image: "/repair.jpg" },
+    { name: "Barber", available: false, image: "/barber.avif" },
+  ];
 
+  // Component for a single Suggestion Card
+  const SuggestionCard = ({ name, image, available, to }) => {
+    const cardContent = (
+      // Adjusted margin for wrapping layout. Added 'flex-shrink-0' to prevent distortion on smaller widths.
+      <div className={`flex flex-col items-center justify-center p-[2vw] md:p-[0.5vw] w-[20vw] md:w-[6.5vw] h-[28vw] md:h-[8vw] rounded-lg shadow-md transition-shadow duration-300 mb-[2vw] md:mb-[1vw] mr-[2vw] md:mr-[1vw] bg-white flex-shrink-0
+        ${!available ? 'opacity-50 cursor-default' : 'hover:shadow-lg hover:scale-[1.02]'}
+      `}>
+        <img 
+          src={image} 
+          alt={name} 
+          className="w-[12vw] h-[12vw] md:w-[3.5vw] md:h-[3.5vw] object-cover rounded-full mb-[1vw] md:mb-[0.5vw] border border-gray-100" 
+        />
+        <p className="text-[3.5vw] md:text-[1vw] font-medium text-center text-gray-700 leading-tight">
+          {name}
+        </p>
+{/*         {!available && (
+          <span className="absolute bottom-[2vw] md:bottom-[0.5vw] text-[2.5vw] md:text-[0.7vw] font-bold text-red-600">
+            Coming Soon
+          </span>
+        )} */}
+      </div>
+    );
+
+    return available && to ? (
+      <Link to={to} className="inline-block hover:no-underline">
+        {cardContent}
+      </Link>
+    ) : (
+      <div className="inline-block">
+        {cardContent}
+      </div>
+    );
+  };
 
   //   const getLocation2 = () => {
   //   if ("geolocation" in navigator) {
@@ -161,7 +206,7 @@ const UrbanLite2 = () => {
     ));
 
   return (
-<div className="relative font-sans min-h-screen overflow-x-hidden bg-white" style={{fontFamily: 'sans-serif'}}>
+<div className="relative font-sans min-h-screen overflow-x-hidden overflow-y-scroll bg-white" style={{fontFamily: 'sans-serif'}}>
 
    
 
@@ -181,16 +226,16 @@ const UrbanLite2 = () => {
         India's Best <br /> Blue collar Jobs <br /> Marketplace
       </div>
       {/* Search */}
-      <div className="relative mt-[3vw] md:mt-[0vw] left-[7vw] md:left-[26vw] w-[80vw] gap-2">
+      {/* <div className="relative mt-[3vw] md:mt-[0vw] left-[7vw] md:left-[26vw] w-[80vw] gap-2">
         <input className="bg-[#d8d8d8] h-[13vw] w-[85vw] rounded-full md:h-[3.5vw]  px-10 text-[5vw] md:text-[1.3vw] md:w-[41vw] absolute top-[0.1vw]" placeholder="Search" />
         <input className="bg-white pl-[1.2vw] rounded-[15px] h-[9.5vw] w-[30vw] md:h-[2.6vw] md:w-[8vw] text-[3.5vw] md:text-[1.1vw] absolute right-[-3vw] md:right-[39.8vw] top-[2vw] md:top-[0.5vw]" placeholder="Jaipur " />
         <span className="material-symbols-outlined absolute  rounded-[5px] ml-[75vw] mt-[3vw] md:ml-[38vw] md:top-[1vw] text-[7vw] md:text-[1.68vw] w-[1.9vw] bg-[#ffffff] text-[#6c6c6c]"
         >
         distance 
         </span>
-      </div>
+      </div> */}
       {/* suggestions */}
-        <div className='h-[30vw] w-[86vw] md:w-[35vw] md:h-[10vw] top-[69.5vw]  absolute md:top-[23.5vw] left-[10vw] md:left-[31vw] '>
+        {/* <div className='h-[30vw] w-[86vw] md:w-[35vw] md:h-[10vw] top-[69.5vw]  absolute md:top-[23.5vw] left-[10vw] md:left-[31vw] '>
           <SuggestionButton Name="chef"/>
           <SuggestionButton Name="waiter"/>
           <SuggestionButton Name="Maid"/>
@@ -200,7 +245,23 @@ const UrbanLite2 = () => {
           <SuggestionButton Name="waiter"/>
           <SuggestionButton Name="Maid"/>
           <SuggestionButton Name="Repair"/>
-        </div>
+        </div> */}
+        {/* Suggestions (NEW Horizontal Cards) */}
+      {/* Suggestions (NEW Wrapping Cards) */}
+      {/* Removed overflow-x-scroll and whitespace-nowrap and added flex-wrap */}
+      <div className='relative mt-[0vw] md:mt-[3vw] left-[7vw] md:left-[26vw] w-[86vw] md:w-[45vw] flex flex-wrap'>
+          {suggestions.map((suggestion) => (
+            <SuggestionCard 
+              key={suggestion.name} 
+              name={suggestion.name}
+              image={suggestion.image}
+              available={suggestion.available}
+              to={suggestion.to}
+            />
+          ))}
+      </div>
+      {/* End of Suggestions */}
+      {/* End of Suggestions */}
           <InfiniteScroll/>
       <p className='relative mt-[10vw] md:mt-[4.5vw] left-[40.8vw] md:left-[46.8vw] text-[4vw]  md:text-[1vw] ' style={{fontFamily: 'sans-serif'}}>Book Now</p>
       {/* Arrow-bounce */}
@@ -217,7 +278,7 @@ const UrbanLite2 = () => {
 
 
     {/* Services Section */}
-    <div className="relative mt-[5vw] md:mt-[2vw] left-[2vw] text-[6vw] md:text-[2.2vw] font-semibold text-black" >Our Services</div>
+    <div id="services" className="relative mt-[5vw] md:mt-[2vw] left-[2vw] text-[6vw] md:text-[2.2vw] font-semibold text-black" >Our Services</div>
 
       {/* Profile Completion for worker*/}
       {/* <div className="absolute  top-[0.3vw] right-[30vw] ">
@@ -277,7 +338,7 @@ const UrbanLite2 = () => {
 
       {/* About us */}
       <div>
-      <p className='relative mt-[18vw] md:mt-[7vw] left-[4vw] font-medium text-black/70 text-[6vw] md:text-[2vw]' style={{fontFamily: 'sans-serif'}}>About Us</p>
+      <p id="aboutus" className='relative mt-[18vw] md:mt-[7vw] left-[4vw] font-medium text-black/70 text-[6vw] md:text-[2vw]' style={{fontFamily: 'sans-serif'}}>About Us</p>
           {/* Main Premium Quote */}
         <div className="bg-white rounded-lg shadow-lg pt-[5vw] md:p-16  relative w-[85vw] md:w-[80vw] mt-[1vw] left-[7vw] md:left-[12vw]">
           <div className="absolute top-8 left-8">
@@ -375,8 +436,8 @@ function UrbanLite() {
       <Routes>
           <Route path="/" element={<UrbanLite2/>}/>
           <Route path="/termsAndConditions" element={<Tnc/>}/>
-          <Route path="/contactUs" element={<ContactUs/>}/>
-          <Route path="/bookings" element={<BookingsPage/>}/>
+          <Route path="/contactUs" element={<ContactUs LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />}/>
+          <Route path="/bookings" element={<BookingsPage LoggedIn={LoggedIn}/>}/>
           <Route path="/RefundsAndCancellation" element={<Refunds/>}/>
 <Route path="/cook" element={<Cook LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />
 <Route path="/bartan" element={<Bartan LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />

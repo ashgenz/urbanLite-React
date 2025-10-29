@@ -8,13 +8,13 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 
 import axios from "axios";
-
+import { UNIT_PRICES } from "../src/priceConfig.js";
 
 
 
 
 const app = express();
-app.use(cors({ origin: "*", methods: "GET,POST,PUT,DELETE", allowedHeaders: "Content-Type,Authorization" }));
+app.use(cors());
 app.use(express.json({ limit: "200kb" }));
 
 const JWT_KEY = process.env.JWT_KEY;
@@ -57,7 +57,7 @@ const BookingSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["open", "accepted", "rejected", "completed"],
+      enum: ["open", "accepted", "rejected", "completed","cancelled"],
       default: "open",
     },
 
@@ -81,6 +81,7 @@ payment: {
     enum: ["customer_to_us", "customer_to_worker"],
     default: "customer_to_us",
   },
+  cancelledAt: { type: Date },
   transactionId: { type: String, default: "" },
   paidAt: { type: Date },
 
@@ -113,80 +114,97 @@ const Booking = mongoose.model("Booking", BookingSchema);
 // ------------------------
 // Pricing logic
 // ------------------------
-const UNIT_PRICES = {
-  Monthly: {
-    room: 8,
-    kitchen: 10,
-    hall: 12,
-    toilet: 15,
-    meal: 25,
-    naashta: 15,
-    bartan: 1,
-  },
-  "One Time": {
-    room: 10,
-    kitchen: 13,
-    hall: 15,
-    toilet: 18,
-    meal: 40,
-    naashta: 20,
-    bartan: 2,
-  },
-};
 
 // server.js
 
 // ... (previous code before calculatePrice)
-
 function calculatePrice(booking) {
-  const unit = UNIT_PRICES[booking.MonthlyOrOneTime] || UNIT_PRICES["Monthly"];
-  const days =
-    booking.MonthlyOrOneTime === "Monthly"
-      ? 30 * (booking.Months || 1)
-      : 1;
+//   const UNIT_PRICES = {
+//     Monthly: { room: 8, kitchen: 10, hall: 12, toilet: 15, meal: 25, naashta: 15, bartan: 1 },
+//     OneTime: { room: 10, kitchen: 13, hall: 15, toilet: 18, meal: 40, naashta: 20, bartan: 2 },
+//   };
+
+  const isMonthly = booking.MonthlyOrOneTime === "Monthly";
+  const unit = UNIT_PRICES[booking.MonthlyOrOneTime] || UNIT_PRICES.Monthly;
+  const days = isMonthly ? 30 * (booking.Months || 1) : 1;
 
   let total = 0;
 
   for (const srv of booking.services || []) {
     switch (srv.WorkName) {
       case "Jhadu Pocha": {
-        const jhaduFactor =
-          srv.JhaduFrequency === "Alternate day" ? 0.5 : 1;
-        total +=
-          ((srv.NoOfRooms || 0) * unit.room +
-            (srv.NoOfKitchen || 0) * unit.kitchen +
-            (srv.HallSize || 0) * unit.hall) *
-          jhaduFactor *
-          days;
+        let jhaduFrequency = srv.JhaduFrequency;
+        
+        // FIX 1: Only apply plan logic if Monthly
+        let jhaduFactor = 1;
+
+        if (isMonthly) {
+            if (!jhaduFrequency) {
+                jhaduFrequency = 
+                    booking.WhichPlan === "Premium" ? "Daily" :
+                    booking.WhichPlan === "Standard" ? "Alternate day" :
+                    "Alternate day";
+            }
+            jhaduFactor = jhaduFrequency === "Alternate day" ? 0.5 : 1;
+        }
+
+        total += ((srv.NoOfRooms || 0) * unit.room +
+                  (srv.NoOfKitchen || 0) * unit.kitchen +
+                  (srv.HallSize || 0) * unit.hall) * jhaduFactor * days;
         break;
       }
 
       case "Toilet Cleaning": {
-        let toiletFactor = 0;
-        if (srv.FrequencyPerWeek === "Twice a week") toiletFactor = 2 / 7;
-        if (srv.FrequencyPerWeek === "Thrice a week") toiletFactor = 3 / 7;
+        let toiletFreq = srv.FrequencyPerWeek;
+        
+        // FIX 2: Only apply plan logic if Monthly
+        let toiletFactor = 1; // Default to 1 for OneTime, or 0 if Monthly logic applies
+
+        if (isMonthly) {
+            if (!toiletFreq) {
+                toiletFreq = booking.WhichPlan === "Custom" ? booking.FrequencyPerWeek || "Twice a week" : "Twice a week";
+            }
+            toiletFactor = 0; // Reset factor before calculating for monthly
+            if (toiletFreq === "Twice a week") toiletFactor = 2 / 7;
+            else if (toiletFreq === "Thrice a week") toiletFactor = 3 / 7;
+        }
+
         total += (srv.NoOfToilets || 0) * unit.toilet * toiletFactor * days;
         break;
       }
 
       case "Bartan Service": {
-        // ✅ FIX: Must check for "Twice a day" to match the frontend payload
-        const bartanFactor = srv.FrequencyPerDay === "Twice a day" ? 2 : 1; 
-        total +=
-          (srv.AmountOfBartan || 0) * unit.bartan * bartanFactor * days;
+        let bartanFreq = srv.FrequencyPerDay;
+
+        // FIX 3: Only apply plan logic if Monthly
+        let bartanFactor = 1;
+
+        if (isMonthly) {
+            if (!bartanFreq) {
+                bartanFreq =
+                    booking.WhichPlan === "Premium" ? "Twice a day" :
+                    booking.WhichPlan === "Standard" ? "Once a day" :
+                    booking.FrequencyPerDay || "Once a day";
+            }
+            bartanFactor = bartanFreq === "Twice a day" ? 2 : 1;
+        }
+
+        total += (srv.AmountOfBartan || 0) * unit.bartan * bartanFactor * days;
         break;
       }
 
       case "Cook Service": {
-        // Assuming Cook Service still uses "Twice" for its own internal meal calculation
-        const mealsPerDay = srv.FrequencyPerDay === "Twice" ? 2 : 1;
-        total +=
-          (srv.NoOfPeople || 0) * mealsPerDay * unit.meal * days;
-        if (srv.IncludeNaashta) {
-          total += (srv.NoOfPeople || 0) * unit.naashta * days;
-        }
+        // Cook service inherently does not use the Standard/Premium/Custom plans for frequency derivation, 
+        // but since `days` is 1 for OneTime, no changes are strictly necessary here, but we will protect it.
+        const mealsPerDay = isMonthly && srv.FrequencyPerDay === "Twice" ? 2 : 1;
+
+        // Base cooking and naashta cost (no change needed as `days` handles the scaling)
+        total += (srv.NoOfPeople || 0) * mealsPerDay * unit.meal * days;
+        if (srv.IncludeNaashta) total += (srv.NoOfPeople || 0) * unit.naashta * days;
+        
+        // Bartan ADD-ON protection
         if (srv.IncludeBartan) {
-          const cookBartanFactor = srv.FrequencyPerDay === "Twice" ? 2 : 1;
+          const cookBartanFactor = isMonthly && srv.FrequencyPerDay === "Twice" ? 2 : 1;
           total += (srv.AmountOfBartan || 0) * unit.bartan * cookBartanFactor * days;
         }
         break;
@@ -239,6 +257,60 @@ app.get("/api/user/bookings", verifyToken, async (req, res) => {
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+// ------------------------------------------
+// Cancel Booking (User) - DELETE
+// ------------------------------------------
+// app.delete("/api/user/bookings/:id", verifyToken, async (req, res) => {
+//   try {
+//     const booking = await Booking.findById(req.params.id);
+
+//     if (!booking)
+//       return res.status(404).json({ message: "Booking not found" });
+
+//     // Allow cancellation only if user owns it
+//     if (booking.IdCustomer !== req.user.id)
+//       return res.status(403).json({ message: "Unauthorized to cancel this booking" });
+
+//     // Restrict cancellation after payment or acceptance
+//     if (booking.payment?.status === "paid")
+//       return res.status(400).json({ message: "Cannot cancel a paid booking" });
+//     if (booking.status === "accepted")
+//       return res.status(400).json({ message: "Cannot cancel after worker has accepted" });
+
+//     await Booking.findByIdAndDelete(req.params.id);
+
+//     res.json({ success: true, message: "Booking cancelled successfully" });
+//   } catch (err) {
+//     console.error("Cancel booking error:", err.message);
+//     res.status(500).json({ message: "Server error while cancelling booking" });
+//   }
+// });
+// PATCH /api/user/bookings/:id/cancel
+app.patch("/api/user/bookings/:id/cancel",verifyToken, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    // Ensure only the customer who created it can cancel
+    if (booking.IdCustomer.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (booking.status === "cancelled") {
+      return res.status(400).json({ message: "Booking already cancelled" });
+    }
+
+    booking.status = "cancelled";
+    booking.cancelledAt = new Date();
+    await booking.save();
+
+    // Optional: Notify worker via socket/email/push later
+    res.json({ message: "Booking cancelled successfully", booking });
+  } catch (err) {
+    console.error("Cancel booking error:", err);
+    res.status(500).json({ message: "Server error while cancelling booking" });
   }
 });
 
@@ -314,6 +386,18 @@ app.post("/api/worker/bookings/:id/accept", verifyToken, async (req, res) => {
     });
   } catch (err) {
     console.error("Accept booking error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+// Worker → all bookings for this worker
+app.get("/api/worker/bookings/all", verifyToken, async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      IdWorker: req.user.id,
+      status: { $in: ["accepted", "cancelled"] } // or include "open" if needed
+    }).sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
@@ -447,22 +531,25 @@ app.post("/api/worker/bookings/:id/pay-commission", verifyToken, async (req, res
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    // Ensure payment and commission exist
+    // Ensure payment structure exists
     if (!booking.payment) booking.payment = {};
-    if (!booking.payment.commission) booking.payment.commission = { amount: 0, isSettled: false };
+    if (!booking.payment.commission)
+      booking.payment.commission = { amount: 0, isSettled: false, settledAt: null };
 
+    // 🚫 Already settled
     if (booking.payment.commission.isSettled) {
       return res.status(400).json({ message: "Commission already settled" });
     }
 
+    // 🚫 No worker assigned
     if (!booking.IdWorker) {
       return res.status(400).json({ message: "Booking has no assigned worker" });
     }
 
-    // commission = 20% of EstimatedPrice
+    // 💰 Commission = 20% of EstimatedPrice
     const commission = Math.round(booking.EstimatedPrice * 0.2);
 
-    // call Worker backend to deduct from wallet
+    // 🔄 Deduct from worker wallet via Worker Service
     try {
       await axios.post(`http://localhost:${PORTWORKER}/api/internal/worker/pay-commission`, {
         workerId: booking.IdWorker,
@@ -471,22 +558,31 @@ app.post("/api/worker/bookings/:id/pay-commission", verifyToken, async (req, res
       });
     } catch (err) {
       console.error("Worker pay-commission call failed:", err?.response?.data || err.message);
-      // bubble upstream error to frontend
       return res.status(500).json({ message: "Failed to deduct commission from worker wallet" });
     }
 
-    // update booking
-    booking.payment.commission = {
-      amount: commission,
-      isSettled: true,
-      settledAt: new Date(),
-    };
+    // ✅ Update booking.payment & commission details
+    booking.payment.commission.amount = commission;
+    booking.payment.commission.isSettled = true;
+    booking.payment.commission.settledAt = new Date();
+
+    // ✅ Also mark payment as 'paid' since full transaction (customer→us & worker→us) done
+    booking.payment.status = "paid";
+    booking.payment.paidAt = booking.payment.paidAt || new Date();
+
+    // 🔐 Keep mode and paidBy consistent
+    booking.payment.mode = booking.payment.mode || "online";
+    booking.payment.paidBy = booking.payment.paidBy || "customer_to_us";
+
     await booking.save();
 
     res.json({
       success: true,
-      message: "Commission settled successfully",
-      booking: { ...booking.toObject(), payment: { ...booking.payment, method: booking.payment.mode } },
+      message: "Commission settled and payment marked as paid successfully",
+      booking: {
+        ...booking.toObject(),
+        payment: { ...booking.payment, method: booking.payment.mode },
+      },
     });
   } catch (err) {
     console.error("❌ Commission settlement failed:", err.message);
@@ -496,9 +592,8 @@ app.post("/api/worker/bookings/:id/pay-commission", verifyToken, async (req, res
 
 
 
+
 // ------------------------
 // Start server
 // ------------------------
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT} BookingsBackend`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on 0.0.0.0:${PORT}`));

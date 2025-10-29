@@ -10,6 +10,15 @@ let openCloseLogin;
 
 
 export default function Nav({ LoggedIn, setLoggedIn }){
+  const scrollToSection = (id) => {
+        // Delay scroll slightly to ensure React Router finishes navigating to '/' first
+        setTimeout(() => {
+            const section = document.getElementById(id);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }   
+        }, 100); 
+    };
   //logout handle
   
     const handleLogout = () => {
@@ -59,10 +68,12 @@ export default function Nav({ LoggedIn, setLoggedIn }){
         <Link to="/">
         <p className=" absolute text-white font-bold text-[6.3vw] md:text-[1.8vw] left-[20px] md:left-[40px] top-[3.8vw] md:top-[0.5vw]">UrbanLite</p>
         </Link>
-        <Link to="/">
+        <Link to="/#services" onClick={() => scrollToSection('services')}>
         <p className=' md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[30vw]' style={{fontFamily: 'sans-serif'}}>Services</p>
         </Link>
-        <p className=' md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[46vw] cursor-pointer' style={{fontFamily: 'sans-serif'}}>About us</p>
+        <Link to="/#aboutus" onClick={() => scrollToSection('aboutus')}>        
+          <p className=' md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[46vw] cursor-pointer' style={{fontFamily: 'sans-serif'}}>About us</p>
+        </Link>
         <Link to="/bookings">
             <p className='md:block hidden text-[0.92vw] text-[#fff] absolute top-[1.3vw] left-[38vw] cursor-pointer' style={{fontFamily: 'sans-serif'}}>Bookings</p>
         </Link>
