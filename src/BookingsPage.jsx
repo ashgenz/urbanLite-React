@@ -21,7 +21,7 @@ export default function BookingsPage() {
       }
 
       try {
-        const response = await axios.get("http://localhost:5000/api/user/bookings", {
+        const response = await axios.get("https://urbanlite-backends.onrender.com/api/user/bookings", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
