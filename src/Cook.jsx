@@ -1,20 +1,20 @@
 import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import { UNIT_PRICES } from "./priceConfig.js";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const UNIT_PRICES = {
-  Monthly: {
-    meal: 25,     // ₹ per meal per person
-    naashta: 15,  // ₹ per naashta per person
-    bartan: 2,    // ₹ per utensil
-  },
-  "One Time": {
-    meal: 40,     // higher one-time rate
-    naashta: 20,
-    bartan: 5,
-  },
-};
+// const UNIT_PRICES = {
+//   Monthly: {
+//     meal: 25,     // ₹ per meal per person
+//     naashta: 15,  // ₹ per naashta per person
+//     bartan: 1,    // ₹ per utensil
+//   },
+//   "One Time": {
+//     meal: 40,     // higher one-time rate
+//     naashta: 20,
+//     bartan: 2,
+//   },
+// };
 export default function Cook({LoggedIn, heading }) {
   const navigate = useNavigate();
 

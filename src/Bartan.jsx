@@ -1,16 +1,9 @@
 import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import { UNIT_PRICES } from "./priceConfig";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const UNIT_PRICES = {
-  Monthly: {
-    bartan: 2, // ₹ per utensil
-  },
-  "One Time": {
-    bartan: 5, // ₹ per utensil (higher one-time rate)
-  },
-};
+
 
 export default function Bartan({LoggedIn, heading }) {
   const navigate = useNavigate();
