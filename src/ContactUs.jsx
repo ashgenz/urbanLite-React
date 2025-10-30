@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function ContactUs({ LoggedIn, userName }) { // optionally pass name
+export default function ContactUs({ LoggedIn}) { // optionally pass name
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");

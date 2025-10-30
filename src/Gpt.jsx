@@ -436,7 +436,7 @@ function UrbanLite() {
       <Routes>
           <Route path="/" element={<UrbanLite2/>}/>
           <Route path="/termsAndConditions" element={<Tnc/>}/>
-          <Route path="/contactUs" element={<ContactUs LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />}/>
+          <Route path="/contactUs" element={<ContactUs LoggedIn={LoggedIn}/>}/>
           <Route path="/bookings" element={<BookingsPage LoggedIn={LoggedIn}/>}/>
           <Route path="/RefundsAndCancellation" element={<Refunds/>}/>
 <Route path="/cook" element={<Cook LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />} />
