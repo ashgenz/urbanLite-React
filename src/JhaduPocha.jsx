@@ -2,7 +2,7 @@ import React, { useState,useMemo } from "react";
 import axios from "axios";
 import TimeSlotDropdown from "./TimeSlotDropdown";
 import { useNavigate } from "react-router-dom";
-import { UNIT_PRICES } from "./priceConfig";
+import { UNIT_PRICES } from "../../../urbanLite-Backends/BookingBackend/priceConfig";
 // import Math from "Math"
 
 // Use Vite env if present, otherwise fallback to localhost:5000
