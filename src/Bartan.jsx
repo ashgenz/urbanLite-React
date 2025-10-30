@@ -2,7 +2,7 @@ import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UNIT_PRICES } from "./priceConfig";
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = "https://urbanlite-backends.onrender.com";
 
 
 export default function Bartan({LoggedIn, heading }) {
