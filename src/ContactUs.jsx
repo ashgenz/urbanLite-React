@@ -20,7 +20,7 @@ export default function ContactUs({ LoggedIn, userName }) { // optionally pass n
       if (!token) throw new Error("No token found. Please log in.");
 
       await axios.post(
-        "http://localhost:4000/api/user/contact",
+        "https://urbanlite-backends-vrv6.onrender.com/api/user/contact",
         { message },
         { headers: { Authorization: `Bearer ${token}` } }
       );
