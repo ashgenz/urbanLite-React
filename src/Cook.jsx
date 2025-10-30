@@ -1,7 +1,7 @@
 import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { UNIT_PRICES } from "./priceConfig.js";
+import { UNIT_PRICES } from "../../../urbanLite-Backends/BookingBackend/priceConfig.js";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 // const UNIT_PRICES = {
 //   Monthly: {

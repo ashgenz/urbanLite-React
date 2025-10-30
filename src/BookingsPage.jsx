@@ -94,32 +94,11 @@ const handleCancelBooking = async (bookingId) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
 
     const fetchBookings = async () => {
-
         if (!LoggedIn) {
             setError("Please log in first");
             setBookings([]);
             setLoading(false);
             return;
-
-      console.log("Fetching bookings with token:", token);
-
-      try {
-        const response = await axios.get("https://urbanlite-backends.onrender.com/api/user/bookings", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("Bookings response:", response.data);
-        setBookings(response.data);
-      } catch (err) {
-        console.error("❌ Failed to fetch bookings:", err);
-
-        if (err.response) {
-          console.error("Response data:", err.response.data);
-          console.error("Response status:", err.response.status);
-        } else if (err.request) {
-          console.error("No response received:", err.request);
-        } else {
-          console.error("Error message:", err.message);
         }
 
         setLoading(true);

@@ -17,7 +17,7 @@ export default function Login({ LoggedIn, setLoggedIn }) {
   const handleLogin = async () => {
     if (!phone || !password) return alert("Enter phone & password");
     try {
-      const res = await axios.post("http://localhost:4000/api/user/login/", {
+      const res = await axios.post("https://urbanlite-backends-vrv6.onrender.com/api/user/login/", {
         Phone: phone.trim(),
         Password: password.trim(),
       });
@@ -34,17 +34,11 @@ export default function Login({ LoggedIn, setLoggedIn }) {
 const sendOtp = async () => {
   if (!phone) return alert("Enter mobile number");
 
-    //handle submit
-      const handleSubmit = async () => {
-        if (!Phone) return alert("✍️ Please enter phone Number");
-        if (!Password) return alert("✍️ Please create a Password");
-    
-      try {
-        const response = await axios.post("https://urbanlite-backends-vrv6.onrender.com:4000/api/user/login/", {
-          Phone: Phone.trim(),
-          Password:Password.trim()
-        });
-
+  try {
+    // 1️⃣ Check if user exists first before sending OTP
+    const exists = await axios.post("http://localhost:4000/api/user/check-phone", {
+      phone: phone.trim(),
+    });
 
     if (!exists.data.exists) {
       alert("❌ This mobile number is not registered!");
@@ -234,33 +228,12 @@ const sendOtp = async () => {
         )}
       </AnimatePresence>
 
-        {/* Normal Login */}
-        <div  className="w-[450px] ml-[2vw] mt-[6vw] md:mt-[1vw]  h-[12vw] flex flex-wrap">
-        <div className="ml-[3vw] py-[1vw]">
-          <label>Mobile number</label> <br />
-          <input
-            type="text"
-            placeholder='Enter Your Name'
-            value={Phone} 
-            onChange={(e) => setPhone(e.target.value)}
-            className="h-[8vw] w-[60vw] md:w-[18vw] px-[1vw] md:h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
-          />
-        </div>
-        <br />
-        <div className="ml-[3vw] py-[2vw] mt-[6vw] md:mt-0">
-          <label>Password</label> <br />
-          <input
-            type="text"
-            placeholder='Enter Your Name'
-            value={Password} 
-            onChange={(e) => setPass(e.target.value)}
-            className="h-[8vw] w-[60vw] md:w-[18vw] px-[1vw] md:h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
-          />
-        </div>
-        </div>
-      <button onClick={handleSubmit} className='bg-[#8956FF]  rounded-lg px-[30vw] md:px-[1vw] py-[2vw] md:py-[0.4vw] ml-[1.5vw] text-[4.2vw] md:text-[1vw] absolute bottom-[0.8vw] w-[90%] hover:bg-[#9060ff] hover:cursor-pointer hover:border-[1px]  '>Submit</button>
-        <span className='material-symbols-outlined absolute top-[0.3vw] right-[0.3vw] hover:cursor-pointer' onClick={openCloseLogin}>
-       close
-        </span>
-    </>
+      <span
+        className="material-symbols-outlined absolute top-[-2.2vw] right-[0.3vw] cursor-pointer"
+        onClick={openCloseLogin}
+      >
+        close
+      </span>
+    </div>
+  );
 }

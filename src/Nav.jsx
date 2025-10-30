@@ -34,7 +34,7 @@ export default function Nav({ LoggedIn, setLoggedIn }){
     const verifyToken = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:4000/verify', {
+        const res = await axios.get('https://urbanlite-backends-vrv6.onrender.com/verify', {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log(res.data);
