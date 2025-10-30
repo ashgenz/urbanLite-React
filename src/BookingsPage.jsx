@@ -69,7 +69,7 @@ const handleCancelBooking = async (bookingId) => {
 
   try {
     const res = await axios.patch(
-      `http://localhost:5000/api/user/bookings/${bookingId}/cancel`,
+      `https://urbanlite-backends.onrender.com/api/user/bookings/${bookingId}/cancel`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -105,7 +105,7 @@ const handleCancelBooking = async (bookingId) => {
         setError("");
 
         try {
-            const response = await axios.get("http://localhost:5000/api/user/bookings", {
+            const response = await axios.get("https://urbanlite-backends.onrender.com/api/user/bookings", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setBookings(response.data);
@@ -121,13 +121,21 @@ const handleCancelBooking = async (bookingId) => {
         }
     };
 
-    useEffect(() => {
-        fetchBookings();
-        if (token) {
-            const interval = setInterval(fetchBookings, 30000); // auto-refresh every 30s
-            return () => clearInterval(interval);
-        }
-    }, [token]);
+useEffect(() => {
+  if (!token) return; // don’t run if no token yet
+  if (LoggedIn === undefined) return; // wait for Nav verification
+
+  if (LoggedIn) {
+    fetchBookings();
+    const interval = setInterval(fetchBookings, 30000);
+    return () => clearInterval(interval);
+  } else {
+    setError("Please log in first");
+    setBookings([]);
+    setLoading(false);
+  }
+}, [token, LoggedIn]);
+
 
     if (!token) {
         return <p className="text-red-500 text-center mt-20">Please log in first.</p>;
@@ -157,7 +165,7 @@ const handlePayment = async (bookingId, bookingStatus) => {
 
   try {
     await axios.post(
-      `http://localhost:5000/api/user/bookings/${bookingId}/pay`,
+      `https://urbanlite-backends.onrender.com/api/user/bookings/${bookingId}/pay`,
       { method: "to_platform" },
       { headers: { Authorization: `Bearer ${token}` } }
     );
