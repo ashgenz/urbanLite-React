@@ -162,7 +162,8 @@ services: [
         <div>
           <h1 className="text-2xl font-bold">{heading}</h1>
           <p className="text-lg text-gray-700">Professional cook service with flexible options</p>
-          <p className="italic text-gray-500">Select options below</p>
+          <p className="italic text-gray-500">Description</p>
+          <p className="italic text-gray-500">Our trained home cooks prepare fresh, hygienic, and delicious meals suited to your taste. From daily meals to special recipes, they handle everything—from chopping to cooking—so you enjoy homely food without the effort.</p>
         </div>
       </div>
 

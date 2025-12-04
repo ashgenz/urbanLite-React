@@ -76,17 +76,17 @@ seeMarker=function(){
   return (
     <div>
       {/* Search Bar */}
-      <div className=" mb-2">
+      <div className=" absolute mb-2">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search address..."
-          className=" absolute z-10 w-[10vw] h-[1.5vw] left-[5vw] top-[0.2vw] p-2 border border-gray-300 rounded bg-white"
+          placeholder="Enter Location..."
+          className=" relative z-10 w-[120px]   md:w-[125px] h-[8px] left-[65px] top-[0px] p-2 border border-gray-300 rounded bg-white"
         />
         <button
           onClick={handleSearch}
-          className="absolute z-10 ml-2 px-3 bg-blue-500 text-white rounded left-[14.6vw] top-[0.4vw] h-[1.3vw] w-[4vw] text-[0.8vw]"
+          className="relative z-10 ml-2 px-3 bg-blue-500 text-white rounded left-[60px] top-[0vw] h-[20px] w-[70px] md:h-[20px] md:w-[60px] md:text-[13px]"
         >
           Search
         </button>
@@ -97,8 +97,8 @@ seeMarker=function(){
         center={marker}
         zoom={13}
         scrollWheelZoom={true}
-        style={{ width: '99.89%', height: '16.4vw' }}
-        className=' top-[-0.5vw] z-0 rounded-xl'
+        style={{ width: '99.89%', height: '202px' }}
+        className=' top-[-0.5vw] z-0 rounded-xl '
       >
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'

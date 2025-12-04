@@ -148,216 +148,220 @@
 
 
 
-
- 
-//   export default Firebase
-
-import React, { useState } from 'react';
-import axios from 'axios';
-import LocationPicker2 from './LocationPicker2';
-import {seeMarker,setMarker3} from './LocationPicker2';
-import {openCloseSignin} from './Nav';
+import React, { useState } from "react";
+import axios from "axios";
+import LocationPicker2, { seeMarker, setMarker3 } from "./LocationPicker2";
+import { openCloseSignin } from "./Nav";
 import {openCloseLogin} from './Nav';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck } from  '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { marker } from 'leaflet';
 
 
 const OTP = () => {
-    const [Name, setName] = useState("");
-    const [marker2,setMarker2]=useState(false)
-    const [marker,setMarker]=useState([null,null]);
-
-    
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [Password, setPass] = useState('');
-  const [sessionId, setSessionId] = useState('');
+  const [Name, setName] = useState("");
+  const [marker2, setMarker2] = useState(false);
+  const [marker, setMarker] = useState([null, null]);
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [Password, setPass] = useState("");
+  const [sessionId, setSessionId] = useState("");
   const [loading, setLoading] = useState(false);
-
-
-const [otpVerified, setOtpVerified] = useState(true);  // As fixed earlier
-    const getLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log("Latitude:", position.coords.latitude);
-          console.log("Longitude:", position.coords.longitude);
-          setMarker2(true)
-          setMarker3([position.coords.latitude,position.coords.longitude])
-          setMarker([position.coords.latitude,position.coords.longitude])
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          alert("Location access denied or unavailable.");
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by your browser, select the location manually.");
-    }
-  };
-
-  //handle submit
-  const handleSubmit = async () => {
-    if (!Name) return alert("✍️ Please enter name");
-    if (!phone) return alert("✍️ Please enter phone Number");
-    if (!Password) return alert("✍️ Please create a Password");
-    if (!otpVerified) return alert("✅ Please verify OTP first");
-    if (!seeMarker() && !marker2 ) return alert("📍 Please select a location");
-
-  try {
-    const response = await axios.post("http://localhost:4000/api/user/signin/", {
-      Name: Name.trim(),
-      Phone: phone.trim(),
-      location: {
-        lat: marker[0],
-        lng: marker[1],
-      },
-      Password:Password.trim()
-    });
-
-    alert("🎉 Data saved to MongoDB successfully!");
-    openCloseSignin(); // Close login modal only on successful new save
-  
-} catch (err) {
-  if (err.response && err.response.status === 409) {
-    console.log(err);
-    alert("⚠️ Phone Number exists in the database.");
-  } else {
-    console.error(err);
-    alert("❌ Failed to save data. Please try again.");
-  }
-}
-};
-
-
-
+  const [otpVerified, setOtpVerified] = useState(false);
 
   const API_KEY = import.meta.env.VITE_API;
 
-  const sendOtp = async () => {
-    if (!phone) return alert('📱 Enter a valid phone number');
-    setLoading(true);
-    try {
-      const res = await axios.get(`https://2factor.in/API/V1/${API_KEY}/mdS/${phone}/AUTOGEN`);
-      setSessionId(res.data.Details);
-      alert('📤 OTP sent!');
-    } catch (err) {
-      console.error(err);
-      alert('❌ Failed to send OTP');
-    } finally {
-      setLoading(false);
+  const getLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setMarker2(true);
+          setMarker3([pos.coords.latitude, pos.coords.longitude]);
+          setMarker([pos.coords.latitude, pos.coords.longitude]);
+        },
+        () => alert("Location not available.")
+      );
     }
   };
 
-  const verifyOtp = async () => {
-    if (!otp) return alert('🔐 Enter OTP to verify');
+  const sendOtp = async () => {
+    if (!phone) return alert("Enter a valid number");
     setLoading(true);
-
-
-
     try {
       const res = await axios.get(
-        `https://2factor.in/API/V1/${API_KEY}/mdS/VERIFY/${sessionId}/${otp}`
+        `https://2factor.in/API/V1/${API_KEY}/SMS/${phone}/AUTOGEN`
       );
-
-
-          if (res.data.Details === 'OTP Matched') {
-  setOtpVerified(true); // ✅ Set it true after successful verification
-} else {
-  alert('❌ OTP Incorrect!');
-}
+      setSessionId(res.data.Details);
+      alert("OTP Sent!");
     } catch (err) {
-      console.error(err);
-      alert('❌ OTP verification failed');
-    } finally {
-      setLoading(false);
+      alert("Failed to send OTP");
+    }
+    setLoading(false);
+  };
+
+  const verifyOtp = async () => {
+    if (!otp) return alert("Enter OTP");
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `https://2factor.in/API/V1/${API_KEY}/SMS/VERIFY/${sessionId}/${otp}`
+      );
+      if (res.data.Details === "OTP Matched") setOtpVerified(true);
+      else alert("Wrong OTP");
+    } catch {
+      alert("Verification failed");
+    }
+    setLoading(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!Name) return alert("Enter Name");
+    if (!phone) return alert("Enter Phone");
+    if (!Password) return alert("Create Password");
+    if (!otpVerified) return alert("Verify OTP first");
+    if (!seeMarker() && !marker2) return alert("Select a location");
+
+    try {
+      await axios.post("https://urbanlite-backends-vrv6.onrender.com/api/user/signin/", {
+        Name,
+        Phone: phone,
+        location: { lat: marker[0], lng: marker[1] },
+        Password,
+      });
+      alert("Saved!");
+      openCloseSignin();
+    } catch (err) {
+      alert("Phone exists or failed.");
     }
   };
 
   return (
-    <>
-    <div  className="w-[450px] h-[12vw] flex flex-wrap">
-        <div className="ml-[3vw] py-[1vw]">
-          <label>Name</label> <br />
-          <input
-            type="text"
-            placeholder='Enter Your Name'
-            value={Name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-[13vw] px-[1vw] h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
-          />
-        </div>
-      {/* <input
-        type="tel"
-        placeholder="Enter phone number"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        className="w-[13vw] px-[1vw] h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
-        
-      /> */}
-        <div className="ml-[3vw] py-[1vw]">
-          <label>Mobile Number</label> <br />
-          <input
-            type="number"
-            placeholder="enter Mobile number"
-            value={phone} 
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-[13vw] px-[1vw] h-[2vw] mt-[0vw] bg-[#efefef]"
-          />
-        </div>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[999] px-3">
+      <div
+        className="
+        bg-white 
+        w-full 
+        max-w-[500px]    /* smaller width */
+        rounded-xl 
+        p-4              /* reduced padding */
+        relative 
+        shadow-lg 
+        max-h-[85vh]     /* shorter modal */
+        overflow-y-auto
+        text-sm          /* smaller font size */
+      "
+      >
+        {/* Close */}
+        <button
+          className="absolute top-3 right-3 text-xl"
+          onClick={openCloseSignin}
+        >
+          ×
+        </button>
 
-      <button className="text-blue-500 text-[0.9vw] absolute top-[11vw] px-[0.5vw] left-[11vw] rounded-md hover:cursor-pointer hover:bg-[#e8e8e8] "
-       onClick={sendOtp} disabled={loading}>Send OTP</button>
+        <h2 className="text-lg font-semibold mb-4">Create Account</h2>
 
-      {/* <input
-        type="text"
-        placeholder="Enter OTP"
-        value={otp}
-        onChange={(e) => setOtp(e.target.value)}
-        
-      /> */}
+        {/* Form Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-       <div className="ml-[3vw] py-[1vw]">
-          <label>OTP</label> <br />
-           <input
-             type="text"
-             placeholder="Enter OTP"
-             value={otp}
-             onChange={(e) => setOtp(e.target.value)}
-             className="w-[9vw] px-[1vw] h-[2vw] bg-[#efefef]"
-           />
-        </div>
+          {/* Name */}
+          <div>
+            <label className="font-medium text-xs">Name</label>
+            <input
+              type="text"
+              value={Name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter Name"
+              className="w-full p-2 mt-1 bg-gray-100 rounded-md text-sm"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="font-medium text-xs">Mobile Number</label>
+            <input
+              type="number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter mobile"
+              className="w-full p-2 mt-1 bg-gray-100 rounded-md text-sm"
+            />
+            <button
+              onClick={sendOtp}
+              disabled={loading}
+              className="text-blue-600 text-xs underline mt-1"
+            >
+              Send OTP
+            </button>
+          </div>
+
+          {/* OTP */}
+          <div>
+            <label className="font-medium text-xs">OTP</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter OTP"
+                className="w-full p-2 mt-1 bg-gray-100 rounded-md text-sm"
+              />
+              {otpVerified && (
+                <FontAwesomeIcon
+                  icon={faCheck}
+                  className="text-green-500 absolute right-3 top-3 text-sm"
+                />
+              )}
+            </div>
+            <button
+              onClick={verifyOtp}
+              disabled={loading}
+              className="text-green-600 text-xs underline mt-1"
+            >
+              Verify OTP
+            </button>
+          </div>
+
           {/* Password */}
-          <div className="ml-[3vw] py-[1vw]">
-          <label>Password</label> <br />
-          <input
-            type="text"
-            placeholder='Create Password'
-            value={Password}
-             onChange={(e) => setPass(e.target.value)}
-            className="w-[13vw] px-[1vw] h-[2vw] mt-[0.5vw] bg-[#efefef] mr-[5vw]"
-          />
+          <div>
+            <label className="font-medium text-xs">Password</label>
+            <input
+              type="text"
+              value={Password}
+              onChange={(e) => setPass(e.target.value)}
+              placeholder="Create Password"
+              className="w-full p-2 mt-1 bg-gray-100 rounded-md text-sm"
+            />
+          </div>
         </div>
 
+        {/* Location */}
+        <div className="mt-4">
+          <p className="font-medium mb-1 text-xs">Location</p>
 
-        {otpVerified && (<FontAwesomeIcon icon={faCheck} style={{ color: "#03e21d" }}  className='absolute top-[9.35vw] left-[26.5vw]'/>)}
-      <button 
-      className="text-green-600 absolute top-[11vw] text-[0.9vw] px-[0.5vw] rounded-md left-[23vw] hover:cursor-pointer hover:bg-[#e8e8e8]"
-      onClick={verifyOtp} disabled={loading}>Verify OTP</button>
-    </div>
-          <p className='absolute top-[18.6vw] ml-[1vw]' >Location</p>
-      <div className='-z-10 mx-auto  bg-white shadow absolute bottom-[3.8vw] h-[16.5vw] w-[26.5vw] ml-[1.5vw] border-black border-[1px] rounded-md'>
-             <LocationPicker2/>
+          <button
+            onClick={getLocation}
+            className="text-xs border px-2 py-1 rounded-md hover:bg-gray-100"
+          >
+            Find automatically
+          </button>
+
+          <span className="ml-2 text-xs text-gray-600">or select below</span>
+
+          <div className="mt-2 border rounded-md overflow-hidden h-[200px] md:h-[180px]">
+            <LocationPicker2 />
+          </div>
+        </div>
+
+        {/* Submit */}
+        <button
+          onClick={handleSubmit}
+          className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm"
+        >
+          Submit
+        </button>
       </div>
-            
-      <button className='absolute top-[18.8vw] ml-[6vw] bg-[#ffffff] rounded-lg px-[1vw]  hover:cursor-pointer hover:border-[1px] ' onClick={getLocation}>find automatically</button>
-      <p className='text-[0.8vw] top-[19vw] left-[16.5vw] absolute'>or  Select below</p>
-      <button onClick={handleSubmit} className='bg-[#8956FF]  rounded-lg px-[1vw] py-[0.4vw] ml-[1.5vw] text-[1vw] absolute bottom-[0.8vw] w-[90%] hover:bg-[#9060ff] hover:cursor-pointer hover:border-[1px]  '>Submit</button>
-        <span className='material-symbols-outlined absolute top-[0.3vw] right-[0.3vw] hover:cursor-pointer' onClick={openCloseSignin}>
-        close
-        </span>
-    </>
+    </div>
   );
 };
 

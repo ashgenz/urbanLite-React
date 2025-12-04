@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { openCloseLogin } from "./Nav";
+import { openCloseSignin } from "./Nav";
 
 export default function Login({ LoggedIn, setLoggedIn }) {
   const [mode, setMode] = useState("login"); // login | forgot
@@ -36,7 +37,7 @@ const sendOtp = async () => {
 
   try {
     // 1️⃣ Check if user exists first before sending OTP
-    const exists = await axios.post("http://localhost:4000/api/user/check-phone", {
+    const exists = await axios.post("https://urbanlite-backends-vrv6.onrender.com/api/user/check-phone", {
       phone: phone.trim(),
     });
 
@@ -80,7 +81,7 @@ const sendOtp = async () => {
       return alert("Passwords do not match!");
 
     try {
-      await axios.post("http://localhost:4000/api/user/forgot-password/reset-password", {
+      await axios.post("https://urbanlite-backends-vrv6.onrender.com/api/user/forgot-password/reset-password", {
         phone: phone.trim(),
         newPassword: password.trim(),
       });
@@ -99,7 +100,7 @@ const sendOtp = async () => {
   const transition = { duration: 0.3, ease: "easeInOut" };
 
   return (
-    <div className="relative w-[26vw] ml-[2.3vw] mt-[2.3vw]">
+    <div className="relative w-[90%] mx-auto mt-4 md:w-[26vw] md:ml-[2.3vw] md:mt-[2.3vw]">
       <AnimatePresence mode="wait">
         {mode === "login" ? (
           <motion.div
@@ -115,7 +116,7 @@ const sendOtp = async () => {
               placeholder="Enter your phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="bg-[#efefef] w-[60vw] md:w-[18vw] h-[2vw] mt-[0.5vw]"
+              className="bg-[#efefef] w-full md:w-[18vw] h-10 md:h-[2vw] px-3 rounded-md mt-2 text-base"
             />
             <br />
             <label>Password</label> <br />
@@ -124,8 +125,9 @@ const sendOtp = async () => {
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-[#efefef] w-[60vw] md:w-[18vw] h-[2vw] mt-[0.5vw]"
+              className="bg-[#efefef] w-full md:w-[18vw] h-10 md:h-[2vw] px-3 rounded-md mt-2 text-base"
             />
+            
             <div
               className="text-xs text-[#8956FF] hover:underline cursor-pointer mt-[0.5vw]"
               onClick={() => {
@@ -137,10 +139,15 @@ const sendOtp = async () => {
             </div>
             <button
               onClick={handleLogin}
-              className="bg-[#8956FF] rounded-lg mt-[1vw] px-[1vw] py-[0.4vw] text-white hover:bg-[#9060ff]"
+              className="bg-[#8956FF] rounded-lg mt-4 px-4 py-2 text-white text-base w-full md:w-auto"
+
             >
               Login
             </button>
+            <button
+            onClick={() => {  openCloseLogin(); openCloseSignin(); }}
+            className="mt-[15px] bg-[#eaeaea]"
+            >don't have an account?</button>
           </motion.div>
         ) : (
           <motion.div
@@ -164,7 +171,7 @@ const sendOtp = async () => {
                 placeholder="Enter Mobile Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="bg-[#efefef] w-[60vw] md:w-[18vw] h-[2vw] mt-[0.5vw]"
+                className="bg-[#efefef] w-full md:w-[18vw] h-10 md:h-[2vw] px-3 rounded-md mt-2 text-base"
               />
             )}
             {step === 2 && (
@@ -173,7 +180,7 @@ const sendOtp = async () => {
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="bg-[#efefef] w-[60vw] md:w-[18vw] h-[2vw] mt-[0.5vw]"
+                className="bg-[#efefef] w-full md:w-[18vw] h-10 md:h-[2vw] px-3 rounded-md mt-2 text-base"
               />
             )}
             {step === 3 && (
@@ -183,14 +190,14 @@ const sendOtp = async () => {
                   placeholder="New Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-[#efefef] w-[60vw] md:w-[18vw] h-[2vw] mt-[0.5vw]"
+                  className="bg-[#efefef] w-full md:w-[18vw] h-10 md:h-[2vw] px-3 rounded-md mt-2 text-base"
                 />
                 <input
                   type="password"
                   placeholder="Confirm Password"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  className="bg-[#efefef] w-[60vw] md:w-[18vw] h-[2vw] mt-[0.5vw]"
+                  className="bg-[#efefef] w-full md:w-[18vw] h-10 md:h-[2vw] px-3 rounded-md mt-2 text-base"
                 />
               </>
             )}
@@ -199,7 +206,9 @@ const sendOtp = async () => {
               {step > 1 && (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="border px-[1vw] py-[0.4vw] rounded-lg"
+                  className="border px-4 py-2 rounded-lg text-base w-full md:w-auto"
+
+
                 >
                   Back
                 </button>
@@ -208,7 +217,9 @@ const sendOtp = async () => {
                 onClick={
                   step === 1 ? sendOtp : step === 2 ? verifyOtp : resetPassword
                 }
-                className="bg-[#8956FF] rounded-lg px-[1vw] py-[0.4vw] text-white hover:bg-[#9060ff]"
+                className="border px-4 py-2 rounded-lg text-base w-full md:w-auto"
+
+
               >
                 {step === 1
                   ? "Send OTP"
@@ -229,7 +240,8 @@ const sendOtp = async () => {
       </AnimatePresence>
 
       <span
-        className="material-symbols-outlined absolute top-[-2.2vw] right-[0.3vw] cursor-pointer"
+        className="material-symbols-outlined absolute -top-4 right-2 text-3xl md:text-xl"
+
         onClick={openCloseLogin}
       >
         close
