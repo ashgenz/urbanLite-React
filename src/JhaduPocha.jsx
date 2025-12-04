@@ -240,7 +240,7 @@ const handleSubmit = async () => {
             <h1 className="text-2xl font-bold">{heading}</h1>
             <p className="text-lg text-gray-700">Description</p>
             <p className="italic text-gray-500">
-                Professional brooming and mopping service
+                Daily sweeping and mopping done with care and precision. A clean home, without the hassle.
             </p>
             </div>
         </div>

@@ -54,6 +54,10 @@ export default function Nav({ LoggedIn, setLoggedIn }){
     //close Login
     const [SigninOpenClose,setClose1]=useState(false);
     const [loginOpenClose,setClose2]=useState(false);
+
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+
     openCloseSignin=function(){
       setClose2(false);
       setClose1(!SigninOpenClose)
@@ -108,7 +112,7 @@ export default function Nav({ LoggedIn, setLoggedIn }){
       </div>
 
       {/* login section */}
-      {SigninOpenClose &&   <div className=' border-[1px] fixed h-[41vw] w-[29.5vw] top-[4vw] bg-[#f7f7f7] left-[35vw] z-10 rounded-lg'>
+      {SigninOpenClose &&   <div className=' fixed md:w-[29.5vw] md:h-[41vw] h-[520px] w-[80vw] top-[15vw] md:top-[4vw]  left-[10vw] md:left-[35vw] z-10 rounded-lg'>
       <Firebase />
       </div>}
       {loginOpenClose &&   <div className='border-[1px] fixed h-[75vw] md:h-[18vw] w-[80vw] md:w-[28vw] top-[40vw] md:top-[12vw] bg-[#f7f7f7] left-[10vw] md:left-[35vw] z-10 rounded-lg'>
@@ -119,10 +123,94 @@ export default function Nav({ LoggedIn, setLoggedIn }){
       <span className=" material-symbols-outlined md:block hidden absolute  text-white/50"
       style={{ fontSize: '1.8vw', top: '0.9vw', left: '93.6%'}}>notifications</span>
       {/* menu */}
-      <span className="block text-[8vw] absolute top-[4.5vw] right-[4vw] text-[#fff] md:hidden material-symbols-outlined">
-      menu
-        </span>
+      <span 
+  onClick={() => setMobileMenuOpen(true)}
+  className="block md:hidden text-[8vw] absolute top-[4.5vw] right-[4vw] text-white material-symbols-outlined"
+>
+  menu
+</span>
+
+
+
+
+
+
+
+
+
+        {/* Mobile Sidebar */}
+<div 
+  className={`fixed top-0 right-0 h-full w-[70vw] bg-black text-white z-50 transform 
+  ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"} transition-transform duration-300`}
+>
+  {/* Close Button */}
+  <span 
+    onClick={() => setMobileMenuOpen(false)} 
+    className="material-symbols-outlined text-[9vw] absolute top-[5vw] right-[5vw]"
+  >
+    close
+  </span>
+
+  <div className="mt-[20vw] flex flex-col gap-[6vw] pl-[8vw] text-[5vw] font-medium">
+
+    {/* Profile Photo */}
+    {LoggedIn && (
+      <div className="flex items-center gap-[4vw] mb-[5vw]">
+        <img src="/hamster.jpg" className="w-[14vw] h-[14vw] rounded-full border border-white" />
+        <p className="text-[5vw]">My Profile</p>
+      </div>
+    )}
+
+    {/* Links */}
+    <Link to="/#services" onClick={() => { scrollToSection("services"); setMobileMenuOpen(false) }}>
+      <p>Services</p>
+    </Link>
+
+    <Link to="/bookings" onClick={() => setMobileMenuOpen(false)}>
+      <p>Bookings</p>
+    </Link>
+
+    <Link to="/#aboutus" onClick={() => { scrollToSection("aboutus"); setMobileMenuOpen(false) }}>
+      <p>About Us</p>
+    </Link>
+
+    <Link to="/contactUs" onClick={() => setMobileMenuOpen(false)}>
+      <p>Contact Us</p>
+    </Link>
+
+    {/* Login / Logout Buttons */}
+    {!LoggedIn && (
+      <div className="flex flex-col gap-[4vw] mt-[7vw]">
+        <button 
+          onClick={() => { openCloseSignin(); setMobileMenuOpen(false); }}
+          className="bg-gray-800 py-[3vw] rounded-lg"
+        >Sign In</button>
+
+        <button 
+          onClick={() => { openCloseLogin(); setMobileMenuOpen(false); }}
+          className="bg-[#8956FF] py-[3vw] rounded-lg"
+        >Login</button>
+      </div>
+    )}
+
+    {LoggedIn && (
+      <button 
+        onClick={() => { handleLogout(); setMobileMenuOpen(false); }} 
+        className="bg-red-500 py-[3vw] mt-[7vw] rounded-lg"
+      >Logout</button>
+    )}
+
+  </div>
+</div>
+
+{mobileMenuOpen && (
+  <div 
+    onClick={() => setMobileMenuOpen(false)}
+    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+  ></div>
+)}
+
       </div>
       }
     
-export {openCloseLogin,openCloseSignin}
+export {openCloseLogin,openCloseSignin};
