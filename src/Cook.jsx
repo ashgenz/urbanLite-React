@@ -39,42 +39,43 @@ export default function Cook({LoggedIn, heading }) {
     address: "",
     WhichPlan: "Standard",
   });
-const estimatedPrice = useMemo(() => {
-  const unit = UNIT_PRICES[formData.MonthlyOrOneTime];
-  const days =
-    formData.MonthlyOrOneTime === "Monthly" ? 30 * formData.Months : 1;
+  const estimatedPrice = useMemo(() => {
+    const unit = UNIT_PRICES[formData.MonthlyOrOneTime];
+    const days =
+      formData.MonthlyOrOneTime === "Monthly" ? 30 * formData.Months : 1;
 
-  // --- Meals ---
-  const mealsPerDay = formData.FrequencyPerDay === "Twice" ? 2 : 1;
-  const mealCost = formData.NoOfPeople * mealsPerDay * unit.meal;
+    // --- Meals ---
+    const mealsPerDay = formData.FrequencyPerDay === "Twice" ? 2 : 1;
+    const mealCost = formData.NoOfPeople * mealsPerDay * unit.meal;
 
-  // --- Naashta ---
-  const naashtaCost = formData.IncludeNaashta
-    ? formData.NoOfPeople * unit.naashta
-    : 0;
+    // --- Naashta ---
+    const naashtaCost = formData.IncludeNaashta
+      ? formData.NoOfPeople * unit.naashta
+      : 0;
 
-  // --- Bartan ---
-  let bartanCost = 0;
-  if (formData.IncludeBartan) {
-    // ✅ Bartan for meals
-    const mealBartan = formData.NoOfPeople * mealsPerDay * unit.bartan;
+    // --- Bartan ---
+    let bartanCost = 0;
+    if (formData.IncludeBartan) {
+      // ✅ Bartan for meals
+      const mealBartan = formData.NoOfPeople * mealsPerDay * unit.bartan;
 
-    // ✅ Extra bartan entered by user
-    const extraBartan =
-      (Number(formData.AmountOfBartan) || 0) * unit.bartan;
+      // ✅ Extra bartan entered by user
+      const extraBartan =
+        (Number(formData.AmountOfBartan) || 0) * unit.bartan;
 
-    bartanCost = mealBartan + extraBartan;
-  }
+      bartanCost = mealBartan + extraBartan;
+    }
 
-  // ✅ Final price
-  return Math.round((mealCost + naashtaCost + bartanCost) * days);
-}, [formData]);
+    // ✅ Final price
+    return Math.round((mealCost + naashtaCost + bartanCost) * days);
+  }, [formData]);
 
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData((p) => ({ ...p, [field]: value }));
   };
+
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
@@ -148,6 +149,7 @@ services: [
     } finally {
       setSubmitting(false);
     }
+    console.log("Submitted data:", payload);
   };
 
   return (
@@ -169,7 +171,7 @@ services: [
 
       {/* Plan */}
       <div className="flex gap-2 bg-gray-100 p-2 rounded-3xl w-fit mb-6">
-        {["Monthly", "One Time"].map((type) => (
+        {["Monthly", "OneTime"].map((type) => (
           <button
             key={type}
             type="button"
