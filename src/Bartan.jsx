@@ -17,7 +17,7 @@ export default function Bartan({LoggedIn, heading }) {
     WorkName: "Bartan Service",
     MonthlyOrOneTime: "Monthly",
     FrequencyPerDay: "Once",
-      AmountOfBartan: 1,   // 👈 new field
+      AmountOfBartan: 10,   // 👈 new field
     Months: 1,
     TimeSlot1: "",
     TimeSlot2: "",
@@ -116,6 +116,7 @@ services: [
     } finally {
       setSubmitting(false);
     }
+    console.log("Submitted data:", payload);
   };
 
   return (
@@ -171,12 +172,20 @@ services: [
       </div>
 {/* Utensils Input */}
 <div className="mb-6">
-  <p className="font-semibold">How many extra utensils per session?</p>
+  <p className="font-semibold">How many  utensils per session?</p>
   <input
     type="number"
     min={1}
     value={formData.AmountOfBartan}
-    onChange={(e) => handleChange("AmountOfBartan", +e.target.value)}
+    onChange={(e) => {
+      // 2. Logic to force minimum 10
+      let val = Number(e.target.value);
+      
+      // If user tries to go below 10, force it back to 10
+      if (val < 10) val = 10;
+      
+      handleChange("AmountOfBartan", val);
+    }}
     className="bg-gray-100 p-2 rounded-md w-32"
   />
 </div>
@@ -283,12 +292,12 @@ services: [
         >
           {submitting ? "Booking..." : "Book"}
         </button>
-        <button
+        {/* <button
           type="button"
           className="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
         >
           Pay
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UNIT_PRICES } from "./priceConfig";
-const API_BASE =  "https://urbanlite-backends.onrender.com";
+const API_BASE =  "http://localhost:5000";
 // const UNIT_PRICES = {
 //   Monthly: {
 //     meal: 25,     // per meal per person
@@ -270,29 +270,35 @@ const handleSubmit = async () => {
 
   const singlePayloads = [];
 
-  if (services.cook) {
-    singlePayloads.push({
-      bookingId: genId("cook"),
-      WorkName: "Cook Service",
-      FrequencyPerDay: cook.FrequencyPerDay,
-      IncludeNaashta: !!cook.IncludeNaashta,
-      NoOfPeople: Number(cook.PeopleCount) || 1,
-      TimeSlot1: cook.TimeSlot1 || "",
-      TimeSlot2: cook.FrequencyPerDay === "Twice" ? cook.TimeSlot2 || "" : "",
-      ...base,
-    });
-  }
+if (services.cook) {
+  singlePayloads.push({
+    bookingId: genId("cook"),
+    WorkName: "Cook Service",
+    NoOfPeople: Number(cook.PeopleCount) || 1,
+    FrequencyPerDay: cook.FrequencyPerDay,
+    IncludeNaashta: !!cook.IncludeNaashta,
+    IncludeBartan: services.bartan ? true : false,
+    AmountOfBartan: services.bartan ? bartan.AmountOfBartan || 0 : 0,
+    ...base,
+  });
+}
 
-  if (services.bartan) {
-    singlePayloads.push({
-      bookingId: genId("bartan"),
-      WorkName: "Bartan Service",
-      IsEnabled: !!bartan.enabled,
-      BartanMode: bartan.mode,
-      AmountOfBartan: bartan.mode === "IncludeExtra" ? Number(bartan.AmountOfBartan) || 0 : 0,
-      ...base,
-    });
-  }
+
+if (services.bartan) {
+  singlePayloads.push({
+    bookingId: genId("bartan"),
+    WorkName: "Bartan Service",
+    AmountOfBartan:
+      bartan.mode === "IncludeExtra"
+        ? Number(bartan.AmountOfBartan) + (services.cook ? cook.PeopleCount : 0)
+        : services.cook
+        ? cook.PeopleCount * (cook.FrequencyPerDay === "Twice" ? 2 : 1)
+        : 1,
+    FrequencyPerDay: services.cook ? cook.FrequencyPerDay : bartan.FrequencyPerDay,
+    ...base,
+  });
+}
+
 
   if (services.jhaduPocha) {
 singlePayloads.push({
@@ -354,6 +360,7 @@ singlePayloads.push({
   } finally {
     setSubmitting(false);
   }
+  console.log("Submitted booking:", bodyToSend);
 };
 
 
@@ -373,7 +380,7 @@ singlePayloads.push({
 
       {/* Monthly / One Time */}
       <div className="flex gap-2 bg-gray-100 p-2 rounded-3xl w-fit mb-6">
-        {["Monthly", "One Time"].map((t) => (
+        {["Monthly", "OneTime"].map((t) => (
           <button
             key={t}
             type="button"
@@ -793,7 +800,7 @@ onClick={() => {
         <button onClick={handleSubmit} disabled={submitting} className={`px-4 py-2 rounded-lg text-white ${submitting ? "bg-purple-400 cursor-not-allowed" : "bg-purple-700 hover:bg-purple-600"}`}>
           {submitting ? "Booking..." : "Book"}
         </button>
-        <button type="button" className="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600">Pay</button>
+        {/* <button type="button" className="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600">Pay</button> */}
       </div>
     </div>
   );
