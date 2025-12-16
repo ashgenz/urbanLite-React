@@ -6,7 +6,7 @@ import { UNIT_PRICES } from "./priceConfig";
 // import Math from "Math"
 
 // Use Vite env if present, otherwise fallback to localhost:5000
-const API_BASE ="https://urbanlite-backends.onrender.com";
+const API_BASE ="http://localhost:5000";
 
 export default function JhaduPocha({LoggedIn, heading }) {
   const navigate = useNavigate();
@@ -549,12 +549,12 @@ const handleSubmit = async () => {
                 >
                     {submitting ? "Booking..." : "Book"}
                 </button>
-                <button
+                {/* <button
                     type="button"
                     className="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
                 >
                     Pay
-                </button>
+                </button> */}
             </div>
         </>
     </div>
