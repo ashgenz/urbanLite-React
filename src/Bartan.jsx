@@ -25,20 +25,55 @@ export default function Bartan({LoggedIn, heading }) {
     address: "",
     WhichPlan: "Standard",
   });
+// const estimatedPrice = useMemo(() => {
+//   const unit = UNIT_PRICES[formData.MonthlyOrOneTime];
+//   const days = formData.MonthlyOrOneTime === "Monthly" ? 30 * formData.Months : 1;
+
+//   // --- Bartan count per day ---
+//   const perDayBartan = Number(formData.AmountOfBartan) || 1;
+//   const frequencyFactor = formData.FrequencyPerDay === "Twice" ? 2 : 1;
+
+//   // Total utensils per day = entered utensils × frequency
+//   const dailyUtensils = perDayBartan * frequencyFactor;
+
+//   // ✅ Final price
+//   return Math.round(dailyUtensils * unit.bartan * days);
+// }, [formData]);
+
 const estimatedPrice = useMemo(() => {
-  const unit = UNIT_PRICES[formData.MonthlyOrOneTime];
-  const days = formData.MonthlyOrOneTime === "Monthly" ? 30 * formData.Months : 1;
+    // 1. Get Base Data
+    // Ensure priceConfig has: Monthly: { bartan: 1.5, ... }
+    const unitPrice = UNIT_PRICES.Monthly?.bartan || 1.5; 
+    
+    const days = formData.MonthlyOrOneTime === "Monthly" ? 30 * (formData.Months || 1) : 1;
+    
+    // Force min 10 utensils for calculation safety
+    const count = Math.max(10, Number(formData.AmountOfBartan) || 10);
+    const frequencyFactor = formData.FrequencyPerDay === "Twice" ? 2 : 1;
 
-  // --- Bartan count per day ---
-  const perDayBartan = Number(formData.AmountOfBartan) || 1;
-  const frequencyFactor = formData.FrequencyPerDay === "Twice" ? 2 : 1;
+    // 2. Calculate Raw Price (e.g., 10 * 1.5 * 30 = 450)
+    let total = count * unitPrice * frequencyFactor * days;
 
-  // Total utensils per day = entered utensils × frequency
-  const dailyUtensils = perDayBartan * frequencyFactor;
+    // 3. APPLY MINIMUM FLOOR (The Safety Net)
+    // Only applies to Monthly bookings. OneTime is calculated purely on volume/days.
+    if (formData.MonthlyOrOneTime === "Monthly") {
+        let minMonthlyPrice = 0;
+        
+        if (formData.FrequencyPerDay === "Twice") {
+            minMonthlyPrice = 1400; // Worker needs ~₹1000+ to visit twice daily
+        } else {
+            minMonthlyPrice = 800;  // Worker needs ~₹600 to visit once daily
+        }
 
-  // ✅ Final price
-  return Math.round(dailyUtensils * unit.bartan * days);
-}, [formData]);
+        // Adjust minimum for the duration (e.g., 3 months)
+        const totalMinPrice = minMonthlyPrice * (formData.Months || 1);
+
+        // If Raw Price (450) is less than Min (800), take Min.
+        total = Math.max(total, totalMinPrice);
+    }
+
+    return Math.round(total);
+  }, [formData]);
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -135,6 +170,22 @@ services: [
             Daily bartan cleaning with flexible frequency and slots
           </p>
         </div>
+      </div>
+
+
+
+      <div className="flex gap-2 bg-gray-100 p-2 rounded-3xl w-fit mb-6">
+      <button
+            type="button"
+            className={`px-4 py-1 rounded-3xl ${
+                formData.MonthlyOrOneTime === "Monthly"
+                ? "bg-white"
+                : "hover:bg-gray-200"
+            }`}
+            onClick={() => handleChange("MonthlyOrOneTime", "Monthly")}
+            >
+            Monthly
+            </button>
       </div>
 
       {/* Frequency per Day */}
