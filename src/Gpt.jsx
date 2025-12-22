@@ -373,7 +373,7 @@ const UrbanLite2 = () => {
     <img 
       src="https://cpimg.tistatic.com/8209356/b/1/msme-certificate-service.jpg" 
       alt="MSME Registered" 
-      className="h-[10vw] w-auto object-contain "
+      className="h-[23vw]  md:h-[10vw] w-auto object-contain "
     />
   </div>
 
@@ -382,7 +382,7 @@ const UrbanLite2 = () => {
     <img 
       src="https://www.uxdt.nic.in/wp-content/uploads/2020/06/Startup-India_Preview.png" 
       alt="Startup India" 
-      className="h-[20vw] w-auto object-contain "
+      className="h-[39vw] md:h-[20vw] w-auto object-contain "
     />
   </div>
 </div>
