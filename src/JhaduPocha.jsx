@@ -19,7 +19,7 @@ const [formData, setFormData] = useState({
   location: { lat: 0, lng: 0 },
   WorkName: "All Rounder Service",
   MonthlyOrOneTime: "Monthly",
-  WhichPlan: "Standard",
+  WhichPlan: "Premium",
   Date: new Date(),
   address: "",
   Months: 1,
@@ -31,7 +31,7 @@ const [formData, setFormData] = useState({
   AmountOfBartan: 0,
 });
 // Default is "Custom" so inputs are visible initially (or you can set to "" to force a choice)
-  const [selectedFlatType, setSelectedFlatType] = useState("Custom");
+  const [selectedFlatType, setSelectedFlatType] = useState("1BHK");
 const JhaduPochaActive = true; // always active in this form
 const ToiletActive = formData.NoOfToilets > 0;
 const BartanActive = formData.AmountOfBartan > 0;
@@ -159,7 +159,8 @@ const estimatedPrice = useMemo(() => {
     let total = 0;
 
     // --- 1. Jhadu Pocha Calculation ---
-    if (formData.NoOfRooms || formData.NoOfKitchen || formData.HallSize) {
+    // This allows calculation if a Flat Type is selected OR if rooms are entered
+if (selectedFlatType !== "Custom" || formData.NoOfRooms || formData.NoOfKitchen || formData.HallSize) {
       
       // A. Determine Base Daily Price
       let dailyPrice = 0;
