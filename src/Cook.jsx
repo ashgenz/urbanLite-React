@@ -148,7 +148,7 @@ const [isCustomPeople, setIsCustomPeople] = useState(true);
   // }, [formData]);
 const estimatedPrice = useMemo(() => {
     if (formData.MonthlyOrOneTime === "Trial Feast") {
-      return 299;
+      return 249;
     }
 
     const monthlyCost = calculateTieredPrice(
@@ -340,7 +340,7 @@ services: [
       {formData.MonthlyOrOneTime === "Trial Feast" && (
         <div className="mb-6 bg-yellow-50 border border-yellow-400 p-4 rounded-xl shadow-sm">
           <h3 className="font-bold text-yellow-900 text-sm mb-3 flex items-center gap-2">
-             ✨ 2-Day Trial Pack (₹299)
+             ✨ 2-Day Trial Pack (₹249)
           </h3>
           
           <ul className="text-sm text-gray-800 space-y-2">
