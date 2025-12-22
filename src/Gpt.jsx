@@ -361,7 +361,32 @@ const UrbanLite2 = () => {
         </div>
       </div>
 
+          {/* --- Trust/Registration Section --- */}
+<div className="mt-10 pt-6 border-t border-gray-200 flex flex-col items-center animate-fade-in-up">
+  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4">
+    Registered & Recognized By
+  </p>
+  
+<div className="flex gap-10 items-center justify-center py-4">
+  {/* MSME Logo */}
+  <div className="flex flex-col items-center transition-transform duration-300 hover:scale-110 cursor-pointer">
+    <img 
+      src="https://cpimg.tistatic.com/8209356/b/1/msme-certificate-service.jpg" 
+      alt="MSME Registered" 
+      className="h-[10vw] w-auto object-contain "
+    />
+  </div>
 
+  {/* Startup India Logo */}
+  <div className="flex flex-col items-center transition-transform duration-300 hover:scale-110 cursor-pointer">
+    <img 
+      src="https://www.uxdt.nic.in/wp-content/uploads/2020/06/Startup-India_Preview.png" 
+      alt="Startup India" 
+      className="h-[20vw] w-auto object-contain "
+    />
+  </div>
+</div>
+</div>
       {/* Household Workers */}
       {/* <div className="absolute text-[2vw] font-medium text-black/70 top-[89vw] left-[3vw]">Household workers</div>
       <div className="absolute left-[1vw] top-[96vw] w-full flex flex-col items-center">
