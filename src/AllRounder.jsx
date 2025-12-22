@@ -2,7 +2,8 @@ import React, { useState,useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UNIT_PRICES } from "./priceConfig";
-const API_BASE =  "http://localhost:5000";
+const API_BASE = "https://urbanlite-backends.onrender.com";
+
 // const UNIT_PRICES = {
 //   Monthly: {
 //     meal: 25,     // per meal per person
@@ -23,7 +24,46 @@ const API_BASE =  "http://localhost:5000";
 //     toilet: 50,
 //   },
 // };
+  // 2. Cook Pricing Helper
+  const calculateCookPrice = (peopleInput, hasNaashta, hasBartan, frequency, extraBartanInput) => {
+    const people = Math.max(1, Number(peopleInput) || 1);
+    let total = 0;
 
+    // Food Cost (Tiered from Config)
+    const foodTiers = UNIT_PRICES.Cook_Monthly || {};
+    if (people === 1) total += foodTiers.p1 || 2400;
+    else if (people === 2) total += foodTiers.p2 || 3600;
+    else if (people === 3) total += foodTiers.p3 || 4600;
+    else total += people * (foodTiers.per_head_bulk || 1400);
+
+    // Naashta
+    if (hasNaashta) {
+      const bfTiers = UNIT_PRICES.Cook_Breakfast || {};
+      if (people === 1) total += bfTiers.p1 || 800;
+      else if (people === 2) total += bfTiers.p2 || 1050;
+      else if (people === 3) total += bfTiers.p3 || 1300;
+      else total += people * (bfTiers.per_head_bulk || 425);
+    }
+
+    // Bartan (Meal Utensils)
+    if (hasBartan) {
+      const bTiers = UNIT_PRICES.Cook_Bartan || {};
+      if (people === 1) total += bTiers.p1 || 270;
+      else if (people === 2) total += bTiers.p2 || 400;
+      else if (people === 3) total += bTiers.p3 || 540;
+      else total += people * (bTiers.per_head_bulk || 170);
+    }
+
+    // Frequency & Extra Bartan
+    if (frequency === "Once") total = total * 0.6;
+    if (hasBartan) {
+        total += (Number(extraBartanInput) || 0) * (UNIT_PRICES.Monthly?.bartan || 1.5) * 30;
+    }
+
+    return Math.round(total);
+  };
+
+  
 export default function AllRounder({LoggedIn, heading }) {
 
   const toggleService1 = (key) => {
@@ -91,6 +131,7 @@ export default function AllRounder({LoggedIn, heading }) {
 
   // Jhadu Pocha (no toilet/bartan inputs here)
   const [jhadu, setJhadu] = useState({
+    FlatType: "Custom",
     NoOfRooms: 0,
     NoOfKitchen: 0,
     HallSize: 0,
@@ -103,72 +144,177 @@ export default function AllRounder({LoggedIn, heading }) {
     NoOfToilets: 1,
     FrequencyPerWeek: "Twice", // Twice | Thrice
   });
+// const estimatedPrice = useMemo(() => {
+//   const unit = UNIT_PRICES[common.MonthlyOrOneTime];
+//   const days =
+//     common.MonthlyOrOneTime === "Monthly" ? 30 * (common.Months || 1) : 1;
+
+//   let total = 0;
+
+//   // --- Cook ---
+//   if (services.cook) {
+//     const mealsPerDay = cook.FrequencyPerDay === "Twice" ? 2 : 1;
+//     total += cook.PeopleCount * mealsPerDay * unit.meal;
+
+//     if (cook.IncludeNaashta) {
+//       total += cook.PeopleCount * unit.naashta;
+//     }
+//   }
+
+//   // --- Bartan ---
+//   if (services.bartan && bartan.enabled) {
+//     let mealUtensils = 0;
+//     if (services.cook) {
+//       // Bartan tied to cook meals
+//       const mealsPerDay = cook.FrequencyPerDay === "Twice" ? 2 : 1;
+//       mealUtensils = cook.PeopleCount * mealsPerDay;
+//     } else {
+//       // If cook not selected, fallback to bartan frequency
+//       const freq = bartan.FrequencyPerDay === "Twice" ? 2 : 1;
+//       mealUtensils = freq; // assume 1 utensil baseline
+//     }
+
+//     let extraUtensils = 0;
+//     if (bartan.mode === "IncludeExtra") {
+//       extraUtensils = bartan.AmountOfBartan || 0;
+//     }
+
+//     total += (mealUtensils + extraUtensils) * unit.bartan;
+//   }
+
+//   // --- Jhadu Pocha ---
+//   if (services.jhaduPocha) {
+//     let factor = 1;
+//     if (common.WhichPlan === "Standard") factor = 0.5; // alternate days
+//     if (common.WhichPlan === "Custom") {
+//       factor = jhadu.JhaduFrequency === "Alternate" ? 0.5 : 1;
+//     }
+//     total +=
+//       (jhadu.NoOfRooms * unit.room +
+//         jhadu.NoOfKitchen * unit.kitchen +
+//         jhadu.HallSize * unit.hall) * factor;
+//   }
+
+//   // --- Toilet ---
+//   if (services.toilet) {
+//     let perWeek = 3 / 10; // default Twice a week
+//     if (common.WhichPlan === "Premium") perWeek = 13 / 30;
+//     if (common.WhichPlan === "Custom") {
+//       if (toilet.FrequencyPerWeek === "Thrice") perWeek = 13 / 30;
+//       if (toilet.FrequencyPerWeek === "Twice") perWeek = 3 / 10;
+//     }
+//     total += toilet.NoOfToilets * unit.toilet * perWeek;
+//   }
+
+//   return Math.round(total * days);
+// }, [services, cook, bartan, jhadu, toilet, common]);
+
+const allRounder = services.allRounderData || {};
 const estimatedPrice = useMemo(() => {
-  const unit = UNIT_PRICES[common.MonthlyOrOneTime];
-  const days =
-    common.MonthlyOrOneTime === "Monthly" ? 30 * (common.Months || 1) : 1;
-
+  const isMonthly = common.MonthlyOrOneTime === "Monthly";
+  const months = Number(common.Months) || 1;
+  const unit = { room: 13, kitchen: 15, hall: 15, toilet: 35, bartan: 1.5, meal: 25, naashta: 15 };
+  const packageRates = { bhk1: 1300, bhk2: 1700, bhk3: 2100, bhk4: 2300 };
+  
   let total = 0;
+  const hasMainService = services.cook || services.jhaduPocha;
 
-  // --- Cook ---
-  if (services.cook) {
-    const mealsPerDay = cook.FrequencyPerDay === "Twice" ? 2 : 1;
-    total += cook.PeopleCount * mealsPerDay * unit.meal;
-
-    if (cook.IncludeNaashta) {
-      total += cook.PeopleCount * unit.naashta;
-    }
-  }
-
-  // --- Bartan ---
-  if (services.bartan && bartan.enabled) {
-    let mealUtensils = 0;
-    if (services.cook) {
-      // Bartan tied to cook meals
-      const mealsPerDay = cook.FrequencyPerDay === "Twice" ? 2 : 1;
-      mealUtensils = cook.PeopleCount * mealsPerDay;
-    } else {
-      // If cook not selected, fallback to bartan frequency
-      const freq = bartan.FrequencyPerDay === "Twice" ? 2 : 1;
-      mealUtensils = freq; // assume 1 utensil baseline
-    }
-
-    let extraUtensils = 0;
-    if (bartan.mode === "IncludeExtra") {
-      extraUtensils = bartan.AmountOfBartan || 0;
-    }
-
-    total += (mealUtensils + extraUtensils) * unit.bartan;
-  }
-
-  // --- Jhadu Pocha ---
+  // --- 1. JHADU POCHA ---
   if (services.jhaduPocha) {
-    let factor = 1;
-    if (common.WhichPlan === "Standard") factor = 0.5; // alternate days
-    if (common.WhichPlan === "Custom") {
-      factor = jhadu.JhaduFrequency === "Alternate" ? 0.5 : 1;
+    let jf = jhadu.JhaduFrequency;
+    if (isMonthly && !jf) {
+      jf = common.WhichPlan === "Premium" ? "Daily" : "Alternate day";
     }
-    total +=
-      (jhadu.NoOfRooms * unit.room +
-        jhadu.NoOfKitchen * unit.kitchen +
-        jhadu.HallSize * unit.hall) * factor;
+    const factor = (jf === "Alternate day" || jf === "Alternate") ? 0.75 : 1.0;
+    
+    let base = 0;
+    if (jhadu.FlatType && jhadu.FlatType !== "Custom") {
+      base = packageRates["bhk" + jhadu.FlatType.charAt(0)] || 0;
+    } 
+    // Infer Package if counts match standard (Backend Rule B)
+    if (base === 0 && isMonthly && Number(jhadu.NoOfKitchen) === 1 && Number(jhadu.HallSize) === 1) {
+      const r = Number(jhadu.NoOfRooms);
+      if (r >= 1 && r <= 4) base = packageRates[`bhk${r}`];
+    }
+    // Fallback to custom
+    if (base === 0) {
+      base = ((Number(jhadu.NoOfRooms) * unit.room) + 
+              (Number(jhadu.NoOfKitchen) * unit.kitchen) + 
+              (Number(jhadu.HallSize) * unit.hall)) * 30;
+    }
+    total += base * factor * months;
   }
 
-  // --- Toilet ---
+  // --- 2. COOK SERVICE ---
+  if (services.cook) {
+    const people = Math.max(1, Number(cook.PeopleCount) || 1);
+    let monthlyCook = 0;
+    
+    // Food Tiers (Backend foodTiers)
+    if (people === 1) monthlyCook += 2400;
+    else if (people === 2) monthlyCook += 3600;
+    else if (people === 3) monthlyCook += 4600;
+    else monthlyCook += people * 1400;
+
+    // Naashta (Backend bfTiers)
+    if (cook.IncludeNaashta) {
+      if (people === 1) monthlyCook += 800;
+      else if (people === 2) monthlyCook += 1050;
+      else if (people === 3) monthlyCook += 1300;
+      else monthlyCook += people * 425;
+    }
+
+    // Bartan within Cook (Backend bTiers)
+    if (services.bartan) {
+      if (people === 1) monthlyCook += 270;
+      else if (people === 2) monthlyCook += 400;
+      else if (people === 3) monthlyCook += 540;
+      else monthlyCook += people * 170;
+      
+      monthlyCook += (Number(bartan.AmountOfBartan || 0) * unit.bartan * 30);
+    }
+
+    // Frequency reduction: Backend multiplies TOTAL by 0.6 if "Once"
+    if (cook.FrequencyPerDay === "Once") monthlyCook *= 0.6;
+    total += Math.round(monthlyCook * months);
+  }
+
+  // --- 3. STANDALONE BARTAN (Additive Logic) ---
+  if (services.bartan && !services.cook) {
+    const freq = bartan.FrequencyPerDay || "Once";
+    const visits = isMonthly ? (freq === "Twice" ? 60 : 30) : 1;
+    let bTotal = (Number(bartan.AmountOfBartan) || 0) * unit.bartan * visits * months;
+
+    if (isMonthly && !hasMainService) {
+      const min = freq === "Twice" ? 1400 : 800;
+      bTotal = Math.max(bTotal, min * months);
+    }
+    total += bTotal;
+  }
+
+  // --- 4. TOILET CLEANING ---
   if (services.toilet) {
-    let perWeek = 3 / 10; // default Twice a week
-    if (common.WhichPlan === "Premium") perWeek = 13 / 30;
-    if (common.WhichPlan === "Custom") {
-      if (toilet.FrequencyPerWeek === "Thrice") perWeek = 13 / 30;
-      if (toilet.FrequencyPerWeek === "Twice") perWeek = 3 / 10;
-    }
-    total += toilet.NoOfToilets * unit.toilet * perWeek;
+    const freq = toilet.FrequencyPerWeek || "Twice";
+    // Backend visits: Twice = 8, Thrice = 12
+    const visits = isMonthly ? (freq === "Thrice" ? 12 : 8) : 1;
+    total += (Number(toilet.NoOfToilets) * unit.toilet * visits * months);
   }
 
-  return Math.round(total * days);
+  return Math.round(total);
 }, [services, cook, bartan, jhadu, toilet, common]);
-
+// Added allRounder to dependency array
   const [submitting, setSubmitting] = useState(false);
+// 1. Handle Flat Buttons (1BHK, 2BHK...)
+  const handleFlatSelection = (type) => {
+    setJhadu((prev) => ({ ...prev, FlatType: type }));
+    if (type === "Custom") {
+      setJhadu((prev) => ({ ...prev, FlatType: "Custom", NoOfRooms: 0, NoOfKitchen: 0, HallSize: 0 }));
+    } else {
+      let rooms = type === "1BHK" ? 1 : type === "2BHK" ? 2 : type === "3BHK" ? 3 : 4;
+      setJhadu((prev) => ({ ...prev, FlatType: type, NoOfRooms: rooms, NoOfKitchen: 1, HallSize: 1 }));
+    }
+  };
+
 
   const toggleService = (key) =>
     setServices((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -248,7 +394,9 @@ const handleSubmit = async () => {
     return;
   }
   if (!validate()) return;
-
+const jFreq = common.WhichPlan === "Custom" 
+    ? (jhadu.JhaduFrequency === "Alternate" ? "Alternate day" : "Daily") 
+    : (common.WhichPlan === "Standard" ? "Alternate day" : "Daily");
 
   const base = {
     IdWorker: common.IdWorker,
@@ -308,7 +456,9 @@ singlePayloads.push({
   NoOfKitchen: Number(jhadu.NoOfKitchen) || 0,
   HallSize: Number(jhadu.HallSize) || 0,
   JhaduTimeSlot: jhadu.JhaduTimeSlot || "",            // ❌ backend expects JhaduTimeSlot
-  JhaduFrequency: common.WhichPlan === "Custom" ? jhadu.JhaduFrequency : undefined, // ❌ backend expects JhaduFrequency
+  JhaduFrequency: common.WhichPlan === "Custom" 
+    ? (jhadu.JhaduFrequency === "Alternate" ? "Alternate day" : "Daily") 
+    : (common.WhichPlan === "Standard" ? "Alternate day" : "Daily"), // ❌ backend expects JhaduFrequency
   ...base,
 });
 
@@ -319,7 +469,15 @@ singlePayloads.push({
   bookingId: genId("toilet"),
   WorkName: "Toilet Cleaning",
   NoOfToilets: Number(toilet.NoOfToilets) || 1,
-  FrequencyPerWeek: common.MonthlyOrOneTime === "Monthly" ? toilet.FrequencyPerWeek : undefined, // ✅ matches backend
+  // Inside Jhadu Pocha payload
+JhaduFrequency: common.WhichPlan === "Custom" 
+  ? (jhadu.JhaduFrequency === "Alternate" ? "Alternate day" : "Daily") 
+  : "Alternate day", // Standard default
+
+// Inside Toilet Cleaning payload
+FrequencyPerWeek: common.MonthlyOrOneTime === "Monthly" 
+  ? (toilet.FrequencyPerWeek === "Thrice" ? "Thrice a week" : "Twice a week") 
+  : undefined,
   ...base,
 });
 
@@ -380,7 +538,7 @@ singlePayloads.push({
 
       {/* Monthly / One Time */}
       <div className="flex gap-2 bg-gray-100 p-2 rounded-3xl w-fit mb-6">
-        {["Monthly", "OneTime"].map((t) => (
+        {["Monthly"].map((t) => (
           <button
             key={t}
             type="button"
