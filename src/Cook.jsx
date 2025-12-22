@@ -24,7 +24,7 @@ import { useEffect } from "react";
 export default function Cook({LoggedIn, heading }) {
   const navigate = useNavigate();
 
-const [isCustomPeople, setIsCustomPeople] = useState(false);
+const [isCustomPeople, setIsCustomPeople] = useState(true);
 
   const [formData, setFormData] = useState({
     bookingId: `${Date.now().toString()}-${Math.random().toString(36).slice(2,8)}`,
@@ -39,7 +39,7 @@ const [isCustomPeople, setIsCustomPeople] = useState(false);
     Months: 1,
     IncludeNaashta: false,
     IncludeBartan: false,
-    NoOfPeople: 2,
+    NoOfPeople: 4,
     TimeSlot1: "",
     TimeSlot2: "",
     Date: new Date(),
@@ -423,13 +423,14 @@ services: [
     ${isCustomPeople ? "bg-white shadow" : "hover:bg-gray-200"}
   `}
 >
-  <div className="text-sm font-medium">4+</div>
+  <div className="text-sm font-medium">4 or more</div>
   <div className="text-xs text-purple-700 font-semibold">
     ₹{calculatePriceForPeople(Math.max(formData.NoOfPeople || 4, 4))}
   </div>
 </button>
 
     </div>
+          <i>(1400 per person - for 4 or more people)</i>
 
     {/* Input only when 4+ */}
 {isCustomPeople && (
@@ -584,7 +585,7 @@ services: [
              <span className="text-lg">💰</span>
              
 <p className="text-xs font-bold leading-tight text-amber-900">
-  100% ADJUSTABLE: <span className="font-normal text-gray-700">This fee is adjustable, the 2 meals will be adjusted to your monthly bill, if you upgrade to Monthly.</span>
+  100% ADJUSTABLE: <span className="font-normal text-gray-700">This fee is adjustable, the 2 meals will be adjusted to yo monthly bill, if you upgrade to Monthly.</span>
 </p>
 
              
