@@ -6,7 +6,8 @@ import { UNIT_PRICES } from "./priceConfig";
 // import Math from "Math"
 
 // Use Vite env if present, otherwise fallback to localhost:5000
-const API_BASE ="http://localhost:5000";
+const API_BASE = "https://urbanlite-backends.onrender.com";
+
 
 export default function JhaduPocha({LoggedIn, heading }) {
   const navigate = useNavigate();
