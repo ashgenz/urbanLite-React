@@ -554,7 +554,7 @@ const handleSubmit = async () => {
         <p className="font-semibold">Confirm Location of Work (address)</p>
         <input
           type="text"
-          placeholder="Enter address (optional)"
+          placeholder="Enter address"
           value={formData.address}
           onChange={(e) => handleChange("address", e.target.value)}
           className="bg-gray-100 p-2 rounded-md w-full"
