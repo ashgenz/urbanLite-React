@@ -25,9 +25,9 @@ const [formData, setFormData] = useState({
   address: "",
   Months: 1,
   // Initialize numerical fields to 0
-  NoOfRooms: 0,
-  NoOfKitchen: 0,
-  HallSize: 0,
+  NoOfRooms: 1,
+  NoOfKitchen: 1,
+  HallSize: 1,
   NoOfToilets: 0,
   AmountOfBartan: 0,
 });
@@ -150,121 +150,93 @@ const handleFlatSelection = (type) => {
 //   return Math.round(total);
 // }, [formData]);
 const estimatedPrice = useMemo(() => {
-    // Standard setup
-    const bookingTypeKey = formData.MonthlyOrOneTime === "OneTime" ? "OneTime" : "Monthly";
-    const isMonthly = bookingTypeKey === "Monthly";
-    const unit = UNIT_PRICES.Monthly; // Access unit prices for add-ons
-    const packageRates = UNIT_PRICES.Cleaning_Monthly; // Access Flat Package rates
+    // 1. Setup variables
+    const isMonthly = formData.MonthlyOrOneTime === "Monthly";
+    const months = Number(formData.Months) || 1;
+    const days = isMonthly ? 30 * months : 1;
+    
+    // Config
+    const unit = UNIT_PRICES.Monthly;
+    const packageRates = UNIT_PRICES.Cleaning_Monthly; 
 
-    const days = isMonthly ? 30 * (formData.Months || 1) : 1;
     let total = 0;
 
-    // --- 1. Jhadu Pocha Calculation ---
-    // This allows calculation if a Flat Type is selected OR if rooms are entered
-if (selectedFlatType !== "Custom" || formData.NoOfRooms || formData.NoOfKitchen || formData.HallSize) {
-      
-      // A. Determine Base Daily Price
-      let dailyPrice = 0;
-      if (selectedFlatType === "1BHK") dailyPrice = packageRates.bhk1;
-      else if (selectedFlatType === "2BHK") dailyPrice = packageRates.bhk2;
-      else if (selectedFlatType === "3BHK") dailyPrice = packageRates.bhk3;
-      else if (selectedFlatType === "4BHK") dailyPrice = packageRates.bhk4;
-      else {
-         // Fallback for Custom: Default to 2BHK rate 
-         dailyPrice = packageRates.bhk2; 
-      }
+    // --- JHADU POCHA CALCULATION ---
+    if (selectedFlatType !== "Custom" || formData.NoOfRooms) {
+        
+        // A. Determine Base Monthly Price (Daily Rate)
+        let monthlyBase = 0;
+        if (selectedFlatType === "1BHK") monthlyBase = packageRates.bhk1;      // 1300
+        else if (selectedFlatType === "2BHK") monthlyBase = packageRates.bhk2; // 1700
+        else if (selectedFlatType === "3BHK") monthlyBase = packageRates.bhk3; // 2100
+        else if (selectedFlatType === "4BHK") monthlyBase = packageRates.bhk4; // 2300
+        else {
+             // Custom Flat: Sum of parts * 30 days
+             // (Assuming unit rates are per day)
+             monthlyBase = (formData.NoOfRooms * unit.room + 
+                            formData.NoOfKitchen * unit.kitchen + 
+                            formData.HallSize * unit.hall) * 30;
+        }
 
-      // B. Determine Factor (Daily vs Alternate)
-      let jhaduFactor = 1.0; 
-      
-      const freq = formData.WhichPlan === "Standard" ? "Alternate day" : 
-                   formData.WhichPlan === "Premium" ? "Daily" : 
-                   formData.JhaduFrequency;
+        // B. Apply Frequency Factor
+        // Standard (Alternate) = 0.75
+        // Premium (Daily) = 1.0
+        let factor = 1.0;
+        const freq = formData.WhichPlan === "Standard" ? "Alternate day" : 
+                     formData.WhichPlan === "Premium" ? "Daily" : 
+                     formData.JhaduFrequency;
 
-      if (isMonthly) {
-          // CHANGE 0.85 TO 0.75 HERE
-          if (freq === "Alternate day") jhaduFactor = 0.75; 
-          
-          // Daily stays 1.0
-      }
+        if (isMonthly && freq === "Alternate day") {
+            factor = 0.75;
+        }
 
-      // C. Apply Price
-      if (selectedFlatType !== "Custom") {
-          total += dailyPrice * jhaduFactor;
-      } else {
-          // Custom Calculation (Granular)
-          // We assume the unit.room/kitchen prices are for Daily, so we apply factor
-          const rooms = Math.max(0, formData.NoOfRooms || 0);
-          const kitchen = Math.max(0, formData.NoOfKitchen || 0);
-          const hall = Math.max(0, formData.HallSize || 0);
-          // Note: UNIT_PRICES.Monthly values (13, 15, 15) * 30 days ≈ Daily Package
-          total += (rooms * unit.room + kitchen * unit.kitchen + hall * unit.hall) * days * jhaduFactor;
-      }
+        // C. Add to total (scaled by months)
+        total += monthlyBase * factor * months;
     }
 
-    // --- 2. Toilet Cleaning (Twice / Thrice a week) ---
-    if (formData.NoOfToilets) {
-      let toiletVisitsPerMonth = 0;
-      
-      // Determine Frequency
-      const tFreq = isMonthly 
-        ? (formData.WhichPlan === "Custom" ? formData.FrequencyPerWeek : "Twice a week")
-        : "OneTime";
+    // --- TOILET CLEANING ---
+    if (formData.NoOfToilets > 0) {
+        // Defined in image_4bc0fc.png: 
+        // Twice = 280/mo, Thrice = 420/mo.
+        // This mathematically equals: Count * 35 * Visits
+        let visitsPerMonth = 0;
+        const tFreq = isMonthly 
+            ? (formData.WhichPlan === "Custom" ? formData.FrequencyPerWeek : "Twice a week")
+            : "OneTime";
 
-      if (isMonthly) {
-          if (tFreq === "Twice a week") toiletVisitsPerMonth = 8;  // 4 weeks * 2
-          if (tFreq === "Thrice a week") toiletVisitsPerMonth = 12; // 4 weeks * 3
-      } else {
-          toiletVisitsPerMonth = 1; // One time
-      }
+        if (isMonthly) {
+            if (tFreq === "Twice a week") visitsPerMonth = 8;
+            if (tFreq === "Thrice a week") visitsPerMonth = 12;
+        } else {
+            visitsPerMonth = 1;
+        }
 
-      // Calculation: Count * PricePerVisit * Visits
-      total += Math.max(0, formData.NoOfToilets || 0) * unit.toilet * toiletVisitsPerMonth;
+        total += (formData.NoOfToilets * unit.toilet * visitsPerMonth * months);
     }
 
-    // --- 3. Bartan Service (Once / Twice a day) ---
-    if (formData.AmountOfBartan) {
-      let bartanVisitsPerMonth = 0;
+    // --- BARTAN SERVICE ---
+    if (formData.AmountOfBartan > 0) {
+        let bartanVisitsPerMonth = 0;
+        const bFreq = isMonthly 
+            ? (formData.WhichPlan === "Premium" ? "Twice a day" : 
+               formData.WhichPlan === "Standard" ? "Once a day" : 
+               formData.FrequencyPerDay || "Once a day")
+            : "OneTime";
 
-      const bFreq = isMonthly 
-        ? (formData.WhichPlan === "Premium" ? "Twice a day" : 
-           formData.WhichPlan === "Standard" ? "Once a day" : 
-           formData.FrequencyPerDay || "Once a day")
-        : "OneTime";
+        if (isMonthly) {
+            if (bFreq === "Once a day") bartanVisitsPerMonth = 30;
+            if (bFreq === "Twice a day") bartanVisitsPerMonth = 60;
+        } else {
+            bartanVisitsPerMonth = 1;
+        }
 
-      if (isMonthly) {
-          if (bFreq === "Once a day") bartanVisitsPerMonth = 30;
-          if (bFreq === "Twice a day") bartanVisitsPerMonth = 60;
-      } else {
-          bartanVisitsPerMonth = 1;
-      }
-
-      // Calculation: Count * PricePerUtensil * Visits
-      // (Using unit.bartan which is ~1.5)
-      total += Math.max(0, formData.AmountOfBartan || 0) * unit.bartan * bartanVisitsPerMonth;
+        // 1.5 per utensil * visits * count * months
+        total += (formData.AmountOfBartan * unit.bartan * bartanVisitsPerMonth * months);
     }
 
-    // Final Month Multiplier
-    // If we used flat package (total), we multiply by months. 
-    // If we used custom (days), days already included 30*months.
-    // To be safe: Calculate monthly total first, then multiply by months.
-    // The logic above calculates ONE MONTH price (mostly). 
-    
-    // Let's normalize:
-    // If Custom was used, 'days' was 30*Months. 
-    // If Package was used, we added 'dailyPrice * factor' (which is 1 month).
-    
-    const months = Number(formData.Months) || 1;
-    
-    // If Custom, total is already full duration. If Package, total is 1 month.
-    // Fix:
-    if (selectedFlatType !== "Custom") {
-        return Math.round(total * months);
-    } else {
-        return Math.round(total); // 'days' already had months factor
-    }
+    return Math.round(total);
 
-  }, [formData, selectedFlatType]);
+}, [formData, selectedFlatType]);
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -298,7 +270,10 @@ const handleSubmit = async () => {
     alert("Please select a time slot!");
     return;
   }
-
+ if (!formData.address) {
+    alert("Please enter your address!");
+    return;
+  }
   // --- Calculate correct frequency strings for the payload ---
   const finalJhaduFrequency =
     formData.WhichPlan === "Custom"
