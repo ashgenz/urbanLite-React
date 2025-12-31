@@ -304,11 +304,12 @@ services: [
         </>
       )}
 
-      {/* Prebook */}
+{/* Prebook */}
       <div className="mt-6">
         <p className="font-semibold">Prebook Start Date</p>
         <input
           type="date"
+          min={new Date().toISOString().split("T")[0]} // Restricts past dates
           value={new Date(formData.Date).toISOString().split("T")[0]}
           onChange={(e) => handleChange("Date", new Date(e.target.value))}
           className="bg-gray-100 p-2 rounded-md"

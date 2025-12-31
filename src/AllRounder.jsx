@@ -246,37 +246,42 @@ const estimatedPrice = useMemo(() => {
   }
 
   // --- 2. COOK SERVICE ---
+// --- 2. COOK SERVICE ---
   if (services.cook) {
-    const people = Math.max(1, Number(cook.PeopleCount) || 1);
-    let monthlyCook = 0;
+    // FIX: Allow 0 people. If 0, cost is 0.
+    const people = Number(cook.PeopleCount); 
     
-    // Food Tiers (Backend foodTiers)
-    if (people === 1) monthlyCook += 2400;
-    else if (people === 2) monthlyCook += 3600;
-    else if (people === 3) monthlyCook += 4600;
-    else monthlyCook += people * 1400;
+    if (people > 0) { // Only calculate if people exist
+        let monthlyCook = 0;
+        
+        // Food Tiers (Backend foodTiers)
+        if (people === 1) monthlyCook += 2400;
+        else if (people === 2) monthlyCook += 3600;
+        else if (people === 3) monthlyCook += 4600;
+        else monthlyCook += people * 1400;
 
-    // Naashta (Backend bfTiers)
-    if (cook.IncludeNaashta) {
-      if (people === 1) monthlyCook += 800;
-      else if (people === 2) monthlyCook += 1050;
-      else if (people === 3) monthlyCook += 1300;
-      else monthlyCook += people * 425;
+        // Naashta (Backend bfTiers)
+        if (cook.IncludeNaashta) {
+          if (people === 1) monthlyCook += 800;
+          else if (people === 2) monthlyCook += 1050;
+          else if (people === 3) monthlyCook += 1300;
+          else monthlyCook += people * 425;
+        }
+
+        // Bartan within Cook (Backend bTiers)
+        if (services.bartan) {
+          if (people === 1) monthlyCook += 270;
+          else if (people === 2) monthlyCook += 400;
+          else if (people === 3) monthlyCook += 540;
+          else monthlyCook += people * 170;
+          
+          monthlyCook += (Number(bartan.AmountOfBartan || 0) * unit.bartan * 30);
+        }
+
+        // Frequency reduction: Backend multiplies TOTAL by 0.6 if "Once"
+        if (cook.FrequencyPerDay === "Once") monthlyCook *= 0.6;
+        total += Math.round(monthlyCook * months);
     }
-
-    // Bartan within Cook (Backend bTiers)
-    if (services.bartan) {
-      if (people === 1) monthlyCook += 270;
-      else if (people === 2) monthlyCook += 400;
-      else if (people === 3) monthlyCook += 540;
-      else monthlyCook += people * 170;
-      
-      monthlyCook += (Number(bartan.AmountOfBartan || 0) * unit.bartan * 30);
-    }
-
-    // Frequency reduction: Backend multiplies TOTAL by 0.6 if "Once"
-    if (cook.FrequencyPerDay === "Once") monthlyCook *= 0.6;
-    total += Math.round(monthlyCook * months);
   }
 
   // --- 3. STANDALONE BARTAN (Additive Logic) ---
@@ -394,6 +399,10 @@ const handleSubmit = async () => {
     return;
   }
   if (!validate()) return;
+  if (estimatedPrice <= 0) {
+    alert("Total amount is ₹0. Please select a room, toilet, or utensil count to proceed.");
+    return;
+  }
 const jFreq = common.WhichPlan === "Custom" 
     ? (jhadu.JhaduFrequency === "Alternate" ? "Alternate day" : "Daily") 
     : (common.WhichPlan === "Standard" ? "Alternate day" : "Daily");
@@ -642,124 +651,151 @@ onClick={() => {
         </div>
       )}
 
-      {/* BARTAN (minimal + extra option) */}
+{/* BARTAN (minimal + extra option) */}
       {services.bartan && (
         <div className="border rounded-lg p-4 mb-6">
           <h2 className="text-lg font-semibold mb-3">Bartan</h2>
 
           <div className="mb-4">
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={bartan.enabled} onChange={(e) => setBartan((b) => ({ ...b, enabled: e.target.checked }))} />
+              <input 
+                type="checkbox" 
+                checked={bartan.enabled} 
+                onChange={(e) => setBartan((b) => ({ ...b, enabled: e.target.checked }))} 
+              />
               <span>Enable Bartan Service</span>
             </label>
           </div>
 
-          <div className="mb-4">
-            <p className="font-semibold">Bartan mode</p>
-            <div className="flex gap-4 mt-2 items-center">
-              <label className="flex items-center gap-2">
-                <input type="radio" name="bartanMode" checked={bartan.mode === "MealsOnly"} onChange={() => setBartan((b) => ({ ...b, mode: "MealsOnly", AmountOfBartan: 0 }))} />
-                <span>Only meal utensils (used for prepared meals)</span>
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input type="radio" name="bartanMode" checked={bartan.mode === "IncludeExtra"} onChange={() => setBartan((b) => ({ ...b, mode: "IncludeExtra" }))} />
-                <span>Include extra bartan</span>
-              </label>
-            
-            </div>
-
-            <div className="mb-5 mt-[2vw] block">
-              {/* ✅ Frequency: depends on Cook service */}
-{services.cook ? (
-  <div className="mb-4">
-    <p className="font-semibold">Frequency per Day</p>
-    <p className="italic text-gray-600">
-      Same as Cook frequency ({cook.FrequencyPerDay} a day)
-    </p>
-
-    <div className="mt-3">
-      <p className="font-semibold">Time Slot</p>
-      <p className="italic text-gray-600">
-        After the cooking is done (or whenever worker gets time)
-      </p>
-    </div>
-  </div>
-) : (
-  <div className="mb-5 mt-[2vw] block">
-    <p className="font-semibold">Frequency per Day</p>
-    <div className="flex gap-3 mt-2">
-      {["Once", "Twice"].map((f) => (
-        <button
-          key={f}
-          type="button"
-          className={`px-4 py-1 rounded-lg ${
-            bartan.FrequencyPerDay === f
-              ? "bg-purple-200"
-              : "bg-gray-100 hover:bg-gray-200"
-          }`}
-          onClick={() =>
-            setBartan((s) => ({
-              ...s,
-              FrequencyPerDay: f,
-              TimeSlot2: f === "Once" ? "" : s.TimeSlot2,
-            }))
-          }
-        >
-          {f} a day
-        </button>
-      ))}
-    </div>
-
-    {/* ✅ Only show slots if Cook is NOT selected */}
-    <div className="mb-4 mt-6">
-      <label className="block mb-1">Select First Slot</label>
-      <select
-        value={bartan.TimeSlot1}
-        onChange={(e) =>
-          setBartan((s) => ({ ...s, TimeSlot1: e.target.value }))
-        }
-        className="bg-gray-100 p-2 rounded-md w-full"
-      >
-        <option value="">-- Select --</option>
-        <option value="09:00-11:00">Morning (9–11 AM)</option>
-        <option value="11:00-13:00">Late Morning (11–1 PM)</option>
-        <option value="18:00-20:00">Evening (6–8 PM)</option>
-      </select>
-    </div>
-
-    {bartan.FrequencyPerDay === "Twice" && (
-      <div className="mb-4">
-        <label className="block mb-1">Select Second Slot</label>
-        <select
-          value={bartan.TimeSlot2}
-          onChange={(e) =>
-            setBartan((s) => ({ ...s, TimeSlot2: e.target.value }))
-          }
-          className="bg-gray-100 p-2 rounded-md w-full"
-        >
-          <option value="">-- Select --</option>
-          <option value="13:00-15:00">Afternoon (1–3 PM)</option>
-          <option value="20:00-22:00">Night (8–10 PM)</option>
-        </select>
-      </div>
-    )}
-  </div>
-)}
-
-
-
-          </div>
-          </div>
-
-          {bartan.mode === "IncludeExtra" && (
+          {/* LOGIC FIX: Only show "Meals vs Extra" mode if Cook is selected. 
+              If Cook is NOT selected, we default to showing just the count input. */}
+          {services.cook ? (
             <div className="mb-4">
-              <label className="block mb-1">How many extra utensils?</label>
-              <input type="number" min={1} value={bartan.AmountOfBartan} onChange={(e) => setBartan((b) => ({ ...b, AmountOfBartan: +e.target.value }))} className="bg-gray-100 p-2 rounded-md w-32" />
+              <p className="font-semibold">Bartan mode</p>
+              <div className="flex gap-4 mt-2 items-center">
+                <label className="flex items-center gap-2">
+                  <input 
+                    type="radio" 
+                    name="bartanMode" 
+                    checked={bartan.mode === "MealsOnly"} 
+                    onChange={() => setBartan((b) => ({ ...b, mode: "MealsOnly", AmountOfBartan: 0 }))} 
+                  />
+                  <span>Only meal utensils (from cook)</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input 
+                    type="radio" 
+                    name="bartanMode" 
+                    checked={bartan.mode === "IncludeExtra"} 
+                    onChange={() => setBartan((b) => ({ ...b, mode: "IncludeExtra" }))} 
+                  />
+                  <span>Include extra bartan</span>
+                </label>
+              </div>
+            </div>
+          ) : (
+            // If No Cook, we effectively force "Manual Count" mode visually
+            <div className="mb-4">
+               <p className="text-sm text-gray-600 mb-2">
+                 Since you haven't selected a cook, please enter the total number of utensils to clean.
+               </p>
             </div>
           )}
 
-          <p className="text-sm text-gray-500">Bartan section is intentionally simple — mode picks whether to handle just meal-plates or extra utensils too.</p>
+          {/* TIME & FREQUENCY SECTION */}
+          <div className="mb-5 mt-[2vw] block">
+            {services.cook ? (
+              <div className="mb-4">
+                <p className="font-semibold">Frequency per Day</p>
+                <p className="italic text-gray-600">
+                  Same as Cook frequency ({cook.FrequencyPerDay} a day)
+                </p>
+
+                <div className="mt-3">
+                  <p className="font-semibold">Time Slot</p>
+                  <p className="italic text-gray-600">
+                    After the cooking is done
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-5 mt-[2vw] block">
+                <p className="font-semibold">Frequency per Day</p>
+                <div className="flex gap-3 mt-2">
+                  {["Once", "Twice"].map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      className={`px-4 py-1 rounded-lg ${
+                        bartan.FrequencyPerDay === f
+                          ? "bg-purple-200"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                      onClick={() =>
+                        setBartan((s) => ({
+                          ...s,
+                          FrequencyPerDay: f,
+                          TimeSlot2: f === "Once" ? "" : s.TimeSlot2,
+                        }))
+                      }
+                    >
+                      {f} a day
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mb-4 mt-6">
+                  <label className="block mb-1">Select First Slot</label>
+                  <select
+                    value={bartan.TimeSlot1}
+                    onChange={(e) =>
+                      setBartan((s) => ({ ...s, TimeSlot1: e.target.value }))
+                    }
+                    className="bg-gray-100 p-2 rounded-md w-full"
+                  >
+                    <option value="">-- Select --</option>
+                    <option value="09:00-11:00">Morning (9–11 AM)</option>
+                    <option value="11:00-13:00">Late Morning (11–1 PM)</option>
+                    <option value="18:00-20:00">Evening (6–8 PM)</option>
+                  </select>
+                </div>
+
+                {bartan.FrequencyPerDay === "Twice" && (
+                  <div className="mb-4">
+                    <label className="block mb-1">Select Second Slot</label>
+                    <select
+                      value={bartan.TimeSlot2}
+                      onChange={(e) =>
+                        setBartan((s) => ({ ...s, TimeSlot2: e.target.value }))
+                      }
+                      className="bg-gray-100 p-2 rounded-md w-full"
+                    >
+                      <option value="">-- Select --</option>
+                      <option value="13:00-15:00">Afternoon (1–3 PM)</option>
+                      <option value="20:00-22:00">Night (8–10 PM)</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* INPUT FIELD: Show if (Cook + Extra Mode) OR (No Cook) */}
+          {(bartan.mode === "IncludeExtra" || !services.cook) && (
+            <div className="mb-4">
+              <label className="block mb-1">
+                 {!services.cook ? "How many utensils?" : "How many extra utensils?"}
+              </label>
+              <input 
+                type="number" 
+                min={1} 
+                value={bartan.AmountOfBartan} 
+                onChange={(e) => setBartan((b) => ({ ...b, AmountOfBartan: +e.target.value }))} 
+                className="bg-gray-100 p-2 rounded-md w-32" 
+              />
+            </div>
+          )}
         </div>
       )}
 

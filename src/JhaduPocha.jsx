@@ -274,6 +274,10 @@ const handleSubmit = async () => {
     alert("Please enter your address!");
     return;
   }
+if (estimatedPrice <= 0) {
+    alert("Total amount is ₹0. Please select a room, toilet, or utensil count to proceed.");
+    return;
+  }
   // --- Calculate correct frequency strings for the payload ---
   const finalJhaduFrequency =
     formData.WhichPlan === "Custom"
@@ -537,17 +541,18 @@ const handleSubmit = async () => {
         onChange={(slot) => handleChange("TimeSlot", slot)}
       />
 
-      {/* Prebook */}
-      <div className="mt-6">
-        <p className="font-semibold">Prebook Selection</p>
-        <label className="block mt-2">Select Date:</label>
-        <input
-          type="date"
-          value={new Date(formData.Date).toISOString().split("T")[0]}
-          onChange={(e) => handleChange("Date", new Date(e.target.value))}
-          className="bg-gray-100 p-2 rounded-md"
-        />
-      </div>
+{/* Prebook */}
+      <div className="mt-6">
+        <p className="font-semibold">Prebook Selection</p>
+        <label className="block mt-2">Select Date:</label>
+        <input
+          type="date"
+          min={new Date().toISOString().split("T")[0]} // This restricts past dates
+          value={new Date(formData.Date).toISOString().split("T")[0]}
+          onChange={(e) => handleChange("Date", new Date(e.target.value))}
+          className="bg-gray-100 p-2 rounded-md"
+        />
+      </div>
 
       {/* Location */}
       <div className="mt-6">
