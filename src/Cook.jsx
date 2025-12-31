@@ -545,7 +545,7 @@ services: [
         </div>
       )}
 
-      {/* Prebook */}
+{/* Prebook */}
 <div className="mt-6">
   <p className="font-semibold">
     {formData.MonthlyOrOneTime === "Trial Feast"
@@ -555,6 +555,7 @@ services: [
 
   <input
     type="date"
+    min={new Date().toISOString().split("T")[0]} // Restricts past dates
     value={new Date(formData.Date).toISOString().split("T")[0]}
     onChange={(e) =>
       handleChange("Date", new Date(e.target.value))
