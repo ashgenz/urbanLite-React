@@ -274,6 +274,10 @@ const handleSubmit = async () => {
     alert("Please enter your address!");
     return;
   }
+if (estimatedPrice <= 0) {
+    alert("Total amount is ₹0. Please select a room, toilet, or utensil count to proceed.");
+    return;
+  }
   // --- Calculate correct frequency strings for the payload ---
   const finalJhaduFrequency =
     formData.WhichPlan === "Custom"
