@@ -1,17 +1,9 @@
 import React, { useState, useCallback, useRef, Suspense, lazy } from 'react';
-import { ChevronDown } from "lucide-react";
-import Firebase from "./firebase" 
-import LocationPicker2 from './LocationPicker2';
-import SuggestionButton from './SuggestionButton';
-import ServiceCard from "./ServiceCard"
-import ArrivalCard from './ArrivalCard';
-import Whyus from './Whyus';
 // import FAQSection from './Faq';
 import {BrowserRouter as Router,Route,Routes,Link} from "react-router-dom";
 import Nav from './Nav';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
-import InfiniteScroll from './InfiniteScroll';
 import UrbanLite2 from './UrbanLite2';
 
 
