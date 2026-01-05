@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+// Added View, Text, TouchableOpacity to the react-native imports
 import { Card, CardContent } from "./components/ui/card";
 import { Button } from "./components/ui/button";
-import { Loader2, Calendar, MapPin, DollarSign, User, Phone, CheckCircle, XCircle } from "lucide-react";
-import { Info } from "lucide-react";
-// import { LoggedIn } from "./Nav";
+
+import { Loader2, Calendar, MapPin, DollarSign, User, Phone, CheckCircle, Info } from "lucide-react";
 
 
 /**
@@ -180,130 +180,136 @@ const handlePayment = async (bookingId, bookingStatus) => {
 
 
     // 🚨 Updated card component with professional styling
-    const renderBookingCard = (booking, isCompleted = false) => {
-        const isAccepted = booking.IdWorker && booking.IdWorker !== "demoWorker";
-        const workerStatusBg = isAccepted ? "bg-green-600" : "bg-red-500";
-        const workerStatusText = isAccepted ? "Accepted" : "Pending/Rejected";
-        const paymentStatus = booking.payment?.status || "pending";
-        const isPaymentPending = paymentStatus === "pending";
+const renderBookingCard = (booking, isCompleted = false) => {
+    const isAccepted = booking.IdWorker && booking.IdWorker !== "demoWorker";
+    const paymentStatus = booking.payment?.status || "pending";
+    const isPaymentPending = paymentStatus === "pending";
 
-        return (
-            <Card
-                key={booking._id}
-                className={`shadow-lg rounded-xl border-t-4 ${isCompleted ? "border-t-gray-400 bg-gray-50" : "border-t-blue-500 bg-white"} transition hover:shadow-xl`}
-            >
-                <CardContent className="p-6 space-y-4">
-                    
-                    {/* Header with Title and Status */}
-                    <div className="flex justify-between items-start border-b pb-3 mb-3">
-  <h2 className="text-2xl font-bold text-gray-800 flex-1">{booking.WorkName}</h2>
+    return (
+        <Card
+            key={booking._id}
+            className={`shadow-md rounded-2xl border-l-8 ${
+                isCompleted ? "border-l-gray-400 bg-gray-50" : "border-l-purple-600 bg-white"
+            } mb-6 overflow-hidden`}
+        >
+            <CardContent className="p-0">
+                {/* Status Header */}
+                <div className="flex justify-between items-center px-5 py-3 bg-gray-100/50 border-b">
+                    <div className="flex items-center space-x-2">
+                        <div className={`w-2.5 h-2.5 rounded-full ${isAccepted ? 'bg-green-500' : 'bg-orange-500 animate-pulse'}`} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                            {isAccepted ? "Worker Assigned" : "Finding Best Worker"}
+                        </span>
+                    </div>
+                    {!isCompleted && (
+                        <button 
+                            onClick={() => handleCancelBooking(booking._id)}
+                            className="bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition text-red-600 text-[10px] font-bold"
+                        >
+                            CANCEL
+                        </button>
+                    )}
+                </div>
 
-  <div className="flex items-center space-x-2">
-    {/* Cancel icon only visible for ongoing bookings */}
-    {!isCompleted && (
-      <Info
-        className="w-5 h-5 text-blue-500 cursor-pointer hover:text-blue-700 transition"
-        onClick={() => handleCancelBooking(booking._id)}
-        title="Cancel this booking"
-      />
-    )}
-
-    <div
-      className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${workerStatusBg}`}
-    >
-      {workerStatusText}
-    </div>
-  </div>
-</div>
-
-
-                    {/* Main Details Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
-                        <p className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-2 text-blue-500" />
-                            <strong>Date:</strong> {new Date(booking.Date).toLocaleDateString()}
-                        </p>
-                        <p className="flex items-center">
-                            <DollarSign className="w-4 h-4 mr-2 text-green-600" />
-                            <strong>Price:</strong> <span className="font-semibold text-lg text-green-700 ml-1">₹{booking.EstimatedPrice}</span>
-                        </p>
-                        <p className="flex items-center col-span-2">
-                            <MapPin className="w-4 h-4 mr-2 text-red-500" />
-                            <strong>Address:</strong> {booking.address}
-                        </p>
-                        
-                        <p className="flex items-center">
-                            <User className="w-4 h-4 mr-2 text-gray-500" />
-                            <strong>Worker Name:</strong> {booking.WorkerName || "Searching..."}
-                        </p>
-                        <p className="flex items-center">
-                            <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                            <strong>Worker Phone:</strong> {booking.TempPhoneWorker || "N/A"}
-                        </p>
-                        <p className="flex items-center">
-                            <CheckCircle className="w-4 h-4 mr-2 text-yellow-500" />
-                            <strong>Plan:</strong> {booking.WhichPlan} ({booking.MonthlyOrOneTime})
-                        </p>
-                        <p className="flex items-center">
-                            <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                            <strong>Payment Method:</strong> {booking.payment?.mode || "N/A"}
-                        </p>
+                <div className="p-5">
+                    {/* Title & Price Section */}
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="flex-1">
+                            <h3 className="text-xl font-extrabold text-gray-900 leading-tight">
+                                {booking.WorkName}
+                            </h3>
+                            <div className="flex items-center mt-1 text-gray-500 text-xs">
+                                <Calendar size={12} className="mr-1" />
+                                {new Date(booking.Date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-2xl font-black text-purple-700">₹{booking.EstimatedPrice}</div>
+                            <div className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Total Amount</div>
+                        </div>
                     </div>
 
-                    {/* Services Section */}
+                    {/* Main Information Grid */}
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 mb-4">
+                        <div className="flex items-start mb-3">
+                            <MapPin size={16} className="text-red-500 mt-1 mr-2 flex-shrink-0" />
+                            <p className="text-gray-700 text-sm font-medium leading-5">
+                                {booking.address}
+                            </p>
+                        </div>
+
+                        <div className="flex justify-between border-t border-gray-200/50 pt-3">
+                            <div>
+                                <div className="text-[10px] font-bold text-gray-400 uppercase">Worker Info</div>
+                                <div className="text-gray-800 font-bold text-sm">
+                                    {booking.WorkerName || "Searching..."}
+                                </div>
+                                {booking.TempPhoneWorker && (
+                                    <div className="text-purple-600 text-xs font-semibold">{booking.TempPhoneWorker}</div>
+                                )}
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[10px] font-bold text-gray-400 uppercase">Plan Type</div>
+                                <div className="text-gray-800 font-bold text-sm">{booking.WhichPlan}</div>
+                                <div className="text-gray-500 text-[10px]">{booking.MonthlyOrOneTime}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* --- SERVICES DETAILS SECTION --- */}
                     {booking.services && booking.services.length > 0 && (
-                        <div className="mt-4 border-t pt-4">
-                            <p className="font-semibold text-md text-gray-700 mb-2">Services Details:</p>
-                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600">
+                        <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
+                            <p className="text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Services Details:</p>
+                            <ul className="space-y-2">
                                 {booking.services.map((srv) => (
-                                   <li key={srv._id} className="p-2 bg-blue-50/50 rounded-lg border border-blue-100">
-  <span className="font-medium text-blue-700 block">{srv.WorkName}</span>
-
-  {srv.FrequencyPerDay && <span>• {srv.FrequencyPerDay}</span>}
-  {srv.NoOfPeople > 0 && <span> • People: {srv.NoOfPeople}</span>}
-  {srv.JhaduTimeSlot && <span> • Slot: {srv.JhaduTimeSlot}</span>}
-  {srv.FrequencyPerWeek && <span> • {srv.FrequencyPerWeek}</span>}
-  {srv.NoOfRooms > 0 && <span> • Rooms: {srv.NoOfRooms}</span>}
-  {srv.NoOfKitchen > 0 && <span> • Kitchens: {srv.NoOfKitchen}</span>}
-  {srv.HallSize > 0 && <span> • Hall Size: {srv.HallSize}</span>}
-  {srv.NoOfToilets > 0 && <span> • Toilets: {srv.NoOfToilets}</span>}
-  {srv.AmountOfBartan > 0 && <span> • Utensils: {srv.AmountOfBartan}</span>}
-</li>
-
+                                    <li key={srv._id} className="p-3 bg-purple-50/50 rounded-lg border border-purple-100">
+                                        <div className="text-sm font-bold text-purple-900">{srv.WorkName}</div>
+                                        <div className="text-xs text-purple-700 mt-1 flex flex-wrap gap-x-1">
+                                            {srv.JhaduTimeSlot && <span>• Slot: {srv.JhaduTimeSlot}</span>}
+                                            {srv.NoOfRooms > 0 && <span>• Rooms: {srv.NoOfRooms}</span>}
+                                            {srv.NoOfKitchen > 0 && <span>• Kitchens: {srv.NoOfKitchen}</span>}
+                                            {srv.HallSize > 0 && <span>• Hall Size: {srv.HallSize}</span>}
+                                            {srv.NoOfToilets > 0 && <span>• Toilets: {srv.NoOfToilets}</span>}
+                                            {srv.FrequencyPerDay && <span>• {srv.FrequencyPerDay}</span>}
+                                        </div>
+                                    </li>
                                 ))}
                             </ul>
                         </div>
                     )}
 
-                    {/* Payment/Action Footer */}
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                        <p className="text-base font-semibold">
-                            Status: 
-                            <span className={`ml-2 px-2 py-1 rounded-md text-sm font-bold ${paymentStatus === "paid" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                                {paymentStatus.toUpperCase()}
-                            </span>
-                        </p>
+                    {/* Action Footer */}
+                    <div className="mt-5 flex items-center justify-between">
+                        <div>
+                            <div className="text-[10px] font-bold text-gray-400 uppercase">Payment</div>
+                            <div className={`mt-1 px-3 py-1 rounded-lg inline-block ${paymentStatus === 'paid' ? 'bg-green-100' : 'bg-red-50'}`}>
+                                <span className={`font-black text-xs ${paymentStatus === 'paid' ? 'text-green-700' : 'text-red-700'}`}>
+                                    {paymentStatus.toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
 
                         {!isCompleted && isPaymentPending && (
-                            <Button
-  onClick={() => handlePayment(booking._id, booking.status)}
->
-  <DollarSign className="w-4 h-4 mr-2" />
-  Pay Now
-</Button>
-
+                            <button 
+                                onClick={() => handlePayment(booking._id, booking.status)}
+                                className="bg-purple-700 hover:bg-purple-800 px-6 py-2.5 rounded-xl flex items-center shadow-lg transition text-white font-bold text-sm"
+                            >
+                                <DollarSign size={16} className="mr-1" />
+                                Pay Now
+                            </button>
                         )}
                         {isCompleted && (
-                             <span className="text-green-600 font-medium flex items-center">
-                                <CheckCircle className="w-4 h-4 mr-1"/> Payment Complete
-                             </span>
+                            <div className="flex items-center text-green-600 font-bold text-sm">
+                                <CheckCircle size={18} className="mr-1" />
+                                Settled
+                            </div>
                         )}
                     </div>
-
-                </CardContent>
-            </Card>
-        );
-    };
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
 
     return (
         <div className="p-6 max-w-4xl mx-auto">
